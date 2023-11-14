@@ -10,8 +10,8 @@ namespace FrågesportNetCore
     {
         static void Main(string[] args)
         {
-            Quiz quiz = new Quiz();
-            quiz.Run();
+            UserInterface UI = new UserInterface();
+            UI.Run();
 
             Console.ReadLine();
         }

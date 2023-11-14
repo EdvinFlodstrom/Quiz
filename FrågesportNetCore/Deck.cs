@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
@@ -9,8 +10,8 @@ namespace FrågesportNetCore
 {    
     internal class Deck
     {
-        Random rnd = new Random();
-        List<QuestionCard> cards = new List<QuestionCard>();
+        private Random rnd = new Random();
+        private List<QuestionCard> cards = new List<QuestionCard>();
         public List<QuestionCard> Cards
         {
             get
@@ -20,7 +21,29 @@ namespace FrågesportNetCore
         }
         public Deck()
         {
-            cards.AddRange(new List<QuestionCard>() {
+            string docPath =
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string pathAndFileName = Path.Combine(docPath, "quiz_questions.txt");
+
+            using (var sr = new StreamReader(pathAndFileName))
+            {
+                string row = sr.ReadLine();
+                while (row != null)
+                {
+                    //row == QuestionCard|What is Eyjafjallajökull, and where is it located?|volcano iceland
+                    List<string> listOfRow = row.Split('|').ToList(); //Splits into list: "QuestionCard", "[q]" etc.                 
+                    if (listOfRow[0] == "QuestionCard")
+                    {
+                        cards.Add(new QuestionCard(listOfRow[1], listOfRow[2]));
+                    }
+                    else if (listOfRow[0] == "MCSACard")
+                    {                      
+                        cards.Add(new MCSACard(listOfRow[1], listOfRow[2], listOfRow[3].Split(',').ToList()));                       
+                    }                  
+                    row = sr.ReadLine();
+                }
+            }
+            /*cards.AddRange(new List<QuestionCard>() {
                 new QuestionCard("What is Eyjafjallajökull, and where is it located? ", "volcano iceland"),
                 new QuestionCard("How many cards are in a regular card deck? ", "52"),
                 new QuestionCard("How many points are equal to Blackjack, in Blackjack? ", "21"),
@@ -31,7 +54,7 @@ namespace FrågesportNetCore
                 new QuestionCard("What is the chemical symbol of mercury? ", "hg"),
                 new QuestionCard("In web design, what is 'HTML' short for? ", "hyper text markup language"),
                 new MCSACard("In C#, what is the data type for a true/false value? ", "5", new List<string>{"int", "string", "Object", "There is none", "bool"})
-        });
+        });*/
         }
         public QuestionCard Draw()
         {

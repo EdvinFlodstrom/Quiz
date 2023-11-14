@@ -12,14 +12,20 @@ namespace FrågesportNetCore
     {
         private int correctAnswers = 0;
         private int totalAnswers = 0;
+        private Deck deck;
+        public Quiz(Deck deck)
+        {
+            this.deck = deck;
+        }
         public void Run()
         {
+            correctAnswers = 0;
+            totalAnswers = 0;
             Console.Write("Welcome to this quiz! You will be presented with a question, for which you may submit an answer." + 
                 Environment.NewLine + "Press any key to continue.");
             Console.ReadLine();
             Console.WriteLine();
-
-            Deck deck = new Deck();
+            
             int deckLength = deck.Cards.Count;
 
             for (int i = 0; i < deckLength; i++)
@@ -32,6 +38,52 @@ namespace FrågesportNetCore
                 Environment.NewLine);
             Console.Write(correctAnswers == totalAnswers ? "Perfect score!" : 
                 correctAnswers == 0 ? "All incorrect..." : "Not bad!");
+        }
+        private bool AnswerIsGood(string answer, bool answerHasToBeInt, bool mcsa)
+        {
+            if (answer == "")
+            {
+                Console.WriteLine("Please input an answer.");
+                return false;
+            }
+            if (answerHasToBeInt)
+            {
+                try
+                {
+                    int intAns = Convert.ToInt32(answer);
+                    if (mcsa)
+                    {
+                        for (int i = 1; i < 6; i++)
+                        {
+                            if (intAns == i)
+                            {
+                                return true;
+                            }
+                        }
+                        Console.WriteLine("Please input a number within the given range, 1-5.");
+                        return false;
+                    }
+                    return true;
+                }
+                catch
+                {
+                    Console.WriteLine("Please input numbers, not letters.");
+                    return false;
+                }
+            }
+            else
+            {
+                try
+                {
+                    Convert.ToInt32(answer);
+                    Console.WriteLine("Please input letters, not numbers.");
+                    return false;
+                }
+                catch
+                {
+                    return true;
+                }
+            }
         }
         private bool CheckAnswer(QuestionCard card)
         {
@@ -62,7 +114,14 @@ namespace FrågesportNetCore
             string answer;
             do
             {
-                Console.Write(Environment.NewLine + "Choose your option: ");
+                if (mcsa)
+                {
+                    Console.Write(Environment.NewLine + "Choose your option, 1-5: ");
+                }
+                else
+                {
+                    Console.Write(Environment.NewLine + "Type your answer: ");
+                }
                 answer = Console.ReadLine();
             } while (!AnswerIsGood(answer, answerHasToBeInt, mcsa));
 
@@ -101,52 +160,6 @@ namespace FrågesportNetCore
             Console.WriteLine(Environment.NewLine + 
                 "Cards answered correctly: " + 
                 correctAnswers + "/" + totalAnswers + Environment.NewLine);
-        }
-        private bool AnswerIsGood(string answer, bool answerHasToBeInt, bool mcsa)
-        {
-            if (answer == "")
-            {
-                Console.WriteLine("Please input an answer.");
-                return false;
-            }
-            if (answerHasToBeInt)
-            {
-                try
-                {
-                    int intAns = Convert.ToInt32(answer);
-                    if (mcsa)
-                    {
-                        for (int i = 1; i < 6; i++)
-                        {
-                            if (intAns == i)
-                            {
-                                return true;
-                            }
-                        }
-                        Console.WriteLine("Please input a number within the given range, 1-5.");
-                        return false;
-                    }
-                    return true;
-                }
-                catch
-                {                    
-                    Console.WriteLine("Please input numbers, not letters.");
-                    return false;
-                }
-            }
-            else
-            {
-                try
-                {
-                    Convert.ToInt32(answer);
-                    Console.WriteLine("Please input letters, not numbers.");
-                    return false;
-                }
-                catch
-                {
-                    return true;
-                }
-            }
-        }
+        }        
     }
 }
