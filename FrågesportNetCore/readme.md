@@ -39,3 +39,29 @@ cards after each play. I'm trying to update the deck variable in UserInterface w
 to updpate deck in Quiz despite UserInterface calling Quiz's constructor with the deck as an argument. This process involves
 a few steps, so I'm not certain exactly what is going wrong where. The obvious problem is that deck in Quiz doesn't update 
 accordingly, though.
+
+2023-11-17
+--------------
+#### 4131 WPF Filhantering
+Deck now updates each time the quiz is initiated. I fixed this by moving the instance creation of the class Deck to Quiz from 
+UserInterface.
+
+I've continued with the program for a while now, and it's been a smooth process. Up until now, anyway. So, I solved the problem
+I've been trying to fix for the last 15 minutes, but I am still going to note it down here because of how dumb my mistake was.
+When trying to create a string with all the combiened options entered for an MCSA question, I had a string that could look 
+like this: "1,2,3,4,5,". Note the "," at the end, it's what I was trying to get rid of. So I went to a Stack Overflow page, 
+this one: https://stackoverflow.com/questions/3573284/trim-last-character-from-a-string. It recommended me to try 
+`combinedMCSAOptionsString.Remove(combinedMCSAOptionsString.Length - 1);`, which I did. It didn't solve it though, so I 
+apparently channeled my inner fool and removed "- 1". This, of course, throws an error because the Remove functions tries to
+remove something that is outside the string in question. But, because I have a try-catch statement surrounding the code, 
+including the code snippet I mentioned earlier, the catch statement catches the error. Since the catch statement in this case
+is meant to stop you from entering the same option twice (I'm not sure if I should be doing it this way), the code doesn't
+log an error for the message. Suffice to say, I didn't understand what the error was. After a while of using the debugger, I
+came across the root of the issue (removing "- 1", this was not very smart), and I swiftly fixed the issue. To summarize: I
+made a rather dumb mistake and it took me a ludicrous amount of time to fix it for what it was. So now I'll get back to what
+I was trying to do at the start, removing the last ',' in the string I mentioned earlier. 
+
+And it's fixed. I should probably check when methods actually modify the value they're called upon and not, because that's
+what was confusing me here. I simply added `combinedMCSAOptionsString = ` before the 
+`combinedMCSAOptionsString.Remove(combinedMCSAOptionsString.Length - 1);`. So now it looks like this: 
+`combinedMCSAOptionsString = combinedMCSAOptionsString.Remove(combinedMCSAOptionsString.Length - 1);`.

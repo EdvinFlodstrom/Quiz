@@ -13,12 +13,14 @@ namespace FrågesportNetCore
         private int correctAnswers = 0;
         private int totalAnswers = 0;
         private Deck deck;
-        public Quiz(Deck deck)
+        public Quiz()
         {
-            this.deck = deck;
+            
         }
         public void Run()
         {
+            deck = new Deck();
+
             correctAnswers = 0;
             totalAnswers = 0;
             Console.Write("Welcome to this quiz! You will be presented with a question, for which you may submit an answer." + 
@@ -160,6 +162,10 @@ namespace FrågesportNetCore
             Console.WriteLine(Environment.NewLine + 
                 "Cards answered correctly: " + 
                 correctAnswers + "/" + totalAnswers + Environment.NewLine);
-        }        
+        }
+        private void ResetDeck()
+        {
+            deck = new Deck();
+        }
     }
 }

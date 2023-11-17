@@ -12,6 +12,7 @@ namespace FrågesportNetCore
     {
         private Random rnd = new Random();
         private List<QuestionCard> cards = new List<QuestionCard>();
+        private FileManager fm = new FileManager();
         public List<QuestionCard> Cards
         {
             get
@@ -21,26 +22,15 @@ namespace FrågesportNetCore
         }
         public Deck()
         {
-            string docPath =
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string pathAndFileName = Path.Combine(docPath, "quiz_questions.txt");
-
-            using (var sr = new StreamReader(pathAndFileName))
+            foreach(List<string> line in fm.ReadFile())
             {
-                string row = sr.ReadLine();
-                while (row != null)
+                if (line[0] == "QuestionCard")
                 {
-                    //row == QuestionCard|What is Eyjafjallajökull, and where is it located?|volcano iceland
-                    List<string> listOfRow = row.Split('|').ToList(); //Splits into list: "QuestionCard", "[q]" etc.                 
-                    if (listOfRow[0] == "QuestionCard")
-                    {
-                        cards.Add(new QuestionCard(listOfRow[1], listOfRow[2]));
-                    }
-                    else if (listOfRow[0] == "MCSACard")
-                    {                      
-                        cards.Add(new MCSACard(listOfRow[1], listOfRow[2], listOfRow[3].Split(',').ToList()));                       
-                    }                  
-                    row = sr.ReadLine();
+                    cards.Add(new QuestionCard(line[1], line[2]));
+                }
+                else if (line[0] == "MCSACard")
+                {
+                    cards.Add(new MCSACard(line[1], line[2], line[3].Split(',').ToList()));
                 }
             }
             /*cards.AddRange(new List<QuestionCard>() {
