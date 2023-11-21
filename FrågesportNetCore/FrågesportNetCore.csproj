@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionHandler.cs" />
     <Compile Include="Deck.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="MCSACard.cs" />

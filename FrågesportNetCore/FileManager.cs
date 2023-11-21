@@ -18,7 +18,10 @@ namespace FrågesportNetCore
     }
         public void AddQuestionToFile(string questionCardString)
         {
-            
+            using (StreamWriter outputFile = new StreamWriter(pathAndFileName, true))
+            {
+                outputFile.WriteLine(questionCardString);
+            }
         }
         public List<List<string>> ReadFile()
         {

@@ -65,3 +65,34 @@ And it's fixed. I should probably check when methods actually modify the value t
 what was confusing me here. I simply added `combinedMCSAOptionsString = ` before the 
 `combinedMCSAOptionsString.Remove(combinedMCSAOptionsString.Length - 1);`. So now it looks like this: 
 `combinedMCSAOptionsString = combinedMCSAOptionsString.Remove(combinedMCSAOptionsString.Length - 1);`.
+
+2023-11-21
+-------------
+#### 4131 WPF Filhantering
+Rather than continuing with adding more functions to the program, I've started polishing it a bit more. To start out,
+I removed all try-catch statements as they were unnecessary and caused confusion. Rather than using try{} to convert
+strings to integers, I'm now using `int.TryParse(answer, out intAnswer)`, which is Microsofts recommended way of 
+doing it. It doesn't throw exceptions, so it makes the code more clear. I've also started separating the class
+UserInterface into two, one containing only the interface itself, and the other, AcitonHandler, containing all the
+functions of the UI. ActionHandler will be the class that saves data in variables and adds them together to create 
+questions and some other things. Despite the fact that I've only yet created a method for creating questions, 
+not one for deleting or modifying them, it still takes a lot of work to separate the current UI class. In the end,
+though, the program should be much more clear and easily readable, which is preferable.
+
+Some time later, I've now split UserInterface into two classes, more or less. Some of the functions that UserInterface
+previously took care of, such as creating the string for the question to be added and calling a method in FileManager,
+are now handled by ActionHandler instead. Although I didn't manage to completely and thoroughly separate the two, 
+at least it's a little better now. As it is right now, UserInterface asks a few questions, saves the answers, 
+and sends the answers as arguments to a method in ActionHandler that uses the parameters to concatenate them into
+a single string, which is then sent as an argument to a method in FileManager. It took almost three hours, but
+the code is now a lot better written.
+
+And now the program can write to the 'quiz_questions.txt' file as a way to save user-made questions. These questions
+appear as soon as you start a new quiz, be it right after adding a question or after restarting the program. It works
+as intended, in other words. During this lesson, I used the following links:
+* https://github.com/karlsson0214/WpfFileDemo/blob/master/WpfFileDemo/MainWindow.xaml.cs
+* https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/type-testing-and-cast
+* https://stackoverflow.com/questions/3160127/whats-the-point-of-as-keyword-in-c-sharp
+* https://stackoverflow.com/questions/7042314/can-i-check-if-a-variable-can-be-cast-to-a-specified-type#7042384
+* https://stackoverflow.com/questions/1722964/when-to-use-try-catch-blocks
+* https://stackoverflow.com/questions/2344411/how-to-convert-string-to-integer-in-c-sharp
