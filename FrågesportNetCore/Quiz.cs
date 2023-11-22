@@ -133,7 +133,7 @@ namespace FrågesportNetCore
 
             foreach (string item in splitStr)
             {
-                if (answer.ToLower().Contains(item))
+                if (answer.ToLower().Contains(item.ToLower()))
                 {
                     answerTrue = true;
                 }

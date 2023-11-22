@@ -170,3 +170,7 @@ functions are functional, and I think that should suffice for now. I did test so
 and when inputting a ridiculously large number (as many 9's as was allowed) for the "How many cards are in a 
 regular card deck?" question, I got a message saying "Please input numbers, not letters". Odd result, but at least 
 it didn't crash.
+
+Quick fix later, I've added a .ToLower() in Quiz when checking the inputted answer to make sure that you still get 
+a right answer if you for example type "iceland" when the answer is "Iceland". 
+Makes it a little more user friendly, I think.
