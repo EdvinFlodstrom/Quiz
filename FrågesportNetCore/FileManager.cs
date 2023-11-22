@@ -33,13 +33,47 @@ namespace FrågesportNetCore
 
                 while (row != null)
                 {
-                    //row == QuestionCard|What is Eyjafjallajökull, and where is it located?|volcano iceland
-                    List<string> listOfRow = row.Split('|').ToList(); //Splits into list: "QuestionCard", "[q]" etc.                 
+                    List<string> listOfRow = row.Split('|').ToList(); //Splits into list: "QuestionCard", "[q]" etc.
                     lines.Add(listOfRow);
                     row = sr.ReadLine();
                 }
                 return lines;
             }
+        }
+        public void RemoveOrModifyQuestion(int numberOfQuestion, string modifiedQuestion = "")
+        {
+            numberOfQuestion--;
+            string newStringOfQuestions = "";
+            int indexOfCurrentItem = 0;
+
+            using (var sr = new StreamReader(pathAndFileName))
+            {
+                string row = sr.ReadLine();
+
+                List<string> lines = new List<string>();
+
+                while (row != null)
+                {                                        
+                    lines.Add(row);
+                    row = sr.ReadLine();
+                }
+
+                foreach (string item in lines)
+                {                    
+                    if (numberOfQuestion != indexOfCurrentItem++)
+                    {
+                        newStringOfQuestions += item + Environment.NewLine;
+                    }
+                    else
+                    {
+                        if (modifiedQuestion != "")
+                        {
+                            newStringOfQuestions += modifiedQuestion + Environment.NewLine;
+                        }                        
+                    }                    
+                }
+            }
+            File.WriteAllText(pathAndFileName, newStringOfQuestions);
         }
     }
 }

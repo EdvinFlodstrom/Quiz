@@ -22,7 +22,53 @@ namespace FrågesportNetCore
                 LogInstructions();
                 answer = Console.ReadLine();
             } while (PerformAction(answer));
-        }        
+        }
+        private string CreateQuestion(bool modifyAQuestion = false)
+        {
+            Console.WriteLine("What type of question would you like to add?" + Environment.NewLine +
+                "1. Regular question." + Environment.NewLine +
+                "2. Multiple Choice Single Answer question.");
+
+            string answer = VerifyAnswer(2);
+
+            Console.WriteLine("What is the question going to be?");
+            string question = VerifyAnswer();
+            string questionType = "";
+            string questionAnswer = "";
+            List<string> questionMcsaOptions = new List<string>();
+
+            if (answer == "1")
+            {
+                questionType = "QuestionCard";
+                Console.Write(Environment.NewLine + "What are the words that the answer has to include for it to be correct?");
+                questionAnswer = VerifyAnswer();
+            }
+            else
+            {
+                questionType = "MCSACard";
+                Console.WriteLine(Environment.NewLine + "What are the five options for the question going to be?" +
+                    Environment.NewLine);
+                for (int i = 1; i < 6; i++)
+                {
+                    Console.Write(i + ".");
+                    string option = VerifyAnswer();
+                    if (!(questionMcsaOptions.Contains(option)))
+                    {
+                        questionMcsaOptions.Add(option);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please do not input the same answer twice for MCSA questions." + Environment.NewLine);
+                        return "";
+                    }
+                    Console.WriteLine();
+                }
+                Console.WriteLine(Environment.NewLine + "What is the answer going to be? Choose in the range of 1-5.");
+                questionAnswer = VerifyAnswer(5);
+            }
+
+            return handler.CreateQuestion(answer, question, questionType, questionAnswer, questionMcsaOptions, modifyAQuestion);
+        }
         private void LogInstructions()
         {
             Console.Write("Welcome to the quiz UI! Your options are as follow:" + Environment.NewLine +
@@ -42,57 +88,37 @@ namespace FrågesportNetCore
             }
             else if (answer == "2")
             {
-                Console.WriteLine("What type of question would you like to add?" + Environment.NewLine +
-                "1. Regular question." + Environment.NewLine +
-                "2. Multiple Choice Single Answer question.");
-
-                answer = VerifyAnswer(2);
-
-                Console.WriteLine("What is the question going to be?");
-                string question = VerifyAnswer();
-                string questionType = "";
-                string questionAnswer = "";
-                List<string> questionMcsaOptions = new List<string>();
-
-                if (answer == "1")
+                if (CreateQuestion() != "")
                 {
-                    questionType = "QuestionCard";
-                    Console.Write(Environment.NewLine + "What are the words that the answer has to include for it to be correct?");
-                    questionAnswer = VerifyAnswer();
-                }
-                else
-                {
-                    questionType = "MCSACard";
-                    Console.WriteLine(Environment.NewLine + "What are the five options for the question going to be?" +
-                        Environment.NewLine);
-                    for (int i = 1; i < 6; i++)
-                    {
-                        Console.Write(i + ".");
-                        string option = VerifyAnswer();
-                        if (!(questionMcsaOptions.Contains(option)))
-                        {
-                            questionMcsaOptions.Add(option);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Please do not input the same answer twice for MCSA questions." + Environment.NewLine);
-                            return true;
-                        }
-                        Console.WriteLine();
-                    }
-                    Console.WriteLine(Environment.NewLine + "What is the answer going to be? Choose in the range of 1-5.");
-                    questionAnswer = VerifyAnswer(5);
-                }
-
-                handler.CreateQuestion(answer, question, questionType, questionAnswer, questionMcsaOptions);
+                    Console.WriteLine(Environment.NewLine + "The question has been added successfully.");
+                }               
             }
             else if (answer == "3")
             {
+                int numberOfQuestions = handler.LogAllQuestions();
 
+                Console.WriteLine(Environment.NewLine + "Choose the number of the question you want to remove from the quiz.");
+                fm.RemoveOrModifyQuestion(Convert.ToInt32(VerifyAnswer(numberOfQuestions)));
+                Console.WriteLine(Environment.NewLine + "The question has been removed successfully.");
             }
             else if (answer == "4")
             {
+                int numberOfQuestions = handler.LogAllQuestions();
 
+                Console.WriteLine(Environment.NewLine + "Choose the number of the question you want to modify in the quiz.");
+
+                int numberOfQuestionToModify = Convert.ToInt32(VerifyAnswer(numberOfQuestions));
+                string modifiedQuestion = CreateQuestion(true);
+
+                if (modifiedQuestion != "")
+                {
+                    fm.RemoveOrModifyQuestion(numberOfQuestionToModify, modifiedQuestion);
+                    Console.WriteLine(Environment.NewLine + "The question has been modified successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("Creation of new question failed. No change was made to the chosen question. Please try again.");
+                }
             }
             else if (answer == "5")
             {
@@ -134,6 +160,6 @@ namespace FrågesportNetCore
             } while (answer == null);
 
             return answer;
-        }
+        }        
     }
 }

@@ -96,3 +96,77 @@ as intended, in other words. During this lesson, I used the following links:
 * https://stackoverflow.com/questions/7042314/can-i-check-if-a-variable-can-be-cast-to-a-specified-type#7042384
 * https://stackoverflow.com/questions/1722964/when-to-use-try-catch-blocks
 * https://stackoverflow.com/questions/2344411/how-to-convert-string-to-integer-in-c-sharp
+
+2023-11-22
+-------------
+#### WPF Filhantering
+I've now also implemented question removing. The currently available options are now: 1. Take the quiz, 2. Add a
+quesiton to the quiz, and 3. Remove a quesiton from the quiz. I was pondering several different approaches when it
+came to removing questions from the quiz, and eventually used one that reads all the current lines from the quiz
+and adds them to a string, unless the question being read has the same index as the index of the question the user
+wants to remove (the user is asked to input the number of the question they want to remove). I then do this: 
+`File.WriteAllText(pathAndFileName, newStringOfQuestions);`. Since there is already a document at pathAndFileName,
+the file is overwritten with the contents of newStringOfQuestions, which is a single string containing all the
+questions, answers and options of all the questions. In hindsight, I wonder if the string will ever get too large, 
+but that's a problem for a later time, I think. It works, so that's a win in my books.
+* https://stackoverflow.com/questions/33490890/write-the-data-to-specific-line-c-sharp
+* https://stackoverflow.com/questions/668907/how-to-delete-a-line-from-a-text-file-in-c
+* https://stackoverflow.com/questions/44235689/how-to-overwrite-a-file-if-it-already-exists
+* https://learn.microsoft.com/en-us/dotnet/api/system.io.file.writealltext?view=net-8.0&redirectedfrom=MSDN#System_IO_File_WriteAllText_System_String_System_String_
+
+A little bit later, now you can also modify questions in the quiz. For once, I daresay I handled it fairly well. 
+Rather than adding a billion new methods for finding the correct question and extracting it and modifying it, I instead
+rewrote a few methods, including the one that removes a question. So the method in UserInterface that modifies a 
+question is only three lines long, and it's because it uses the methods for creating a question and removing
+a question. So what happens when you modify a question is the following: 1. All questions are listed from 1-x. 
+2. You choose which question to modify. 3. You add a new question (but the question is never added, rather, a string
+with the question is returned for later use). 4. FileManager's `RemoveOrModifyQuestion(int numberOfQuestion, string modifiedQuestion = "")`
+is called, with modifiedQuestion not being equal to "". 5. A streamreader reads the entire .txt file and saves
+each line in a single string, EXCEPT for if the index of the line being read is the same as the one you chose
+to modify. If that is the case, the program checks that `(modifiedQuestion != "")`. If this evaluates to true, 
+the program adds the question you added earlier (I mentioned that it is saved for later use) to the string instead.
+The program then continues the same way as when you delete a question: it overwrites the contents of the file with 
+the string containing the new questions. In the end, the .txt file looks the exact same except the modified question
+is replaced with a completely new question that you write yourself. When writing this, though, I thought of something.
+If you try to enter the same answer for two different options in an MCSA (Multiple Choice Single Answer) question,
+the program tells you "no" and returns to the menu. Problem is, the question you chose to modify is removed and 
+not replaced with anything. I'll have to fix this real quick.
+
+It didn't take many minutes to fix the mentioned above issue. I simply separated the 
+`RemoveOrModifyQuestion(int numberOfQuestion, string modifiedQuestion = "")` method into a few more steps, so it
+now looks like this:
+```
+    int numberOfQuestionToModify = Convert.ToInt32(VerifyAnswer(numberOfQuestions));
+    string modifiedQuestion = CreateQuestion(true);
+
+    if (modifiedQuestion != "")
+    {
+        fm.RemoveOrModifyQuestion(numberOfQuestionToModify, modifiedQuestion);
+    }
+    else
+    {
+        Console.WriteLine("Creation of new question failed. No change was made to the chosen question. Please try again.");
+    }
+```
+It functions the exact same, but this version has an added failsafe to make sure that nothing goes wrong if you
+fail to create a new question. I think the program as a whole is fully functional now, and I haven't found any 
+unfixed bugs so far. I added ten base questions (I'm aware they aren't on GitHub, but they can be found 
+commented out in previous versions in the Deck class) that can be removed or modified, which should suffice
+for what this program is, I think. I'm not sure how file management would work should anyone download these files
+from GitHub, but at it all works locally for me. So this base program should be done now, but I'm probably going 
+to implement some API related features in a bit.
+
+Bug spotted! It took me a grand total of two minutes to find a problem in my program. Got to be a new record, I think.
+So anyhow, I chose to add a new MCSA question and added the same option twice. This, as indended, does not work. No
+question was added, but a message saying it was, was still written out. It won't take long to fix.
+
+Bug fixed, program work. I added a simple if statement to verify that when adding a question, the return value isn't
+"". The only time it is equal to "" is when the question wasn't added, and so a message does not need to be written.
+I only know of one way to fail the creation of a question, and that is to add the same option twice for MCSA questions.
+For this scenario, I've already written a specific message, and as such, I believe no general message has to be
+written for failing the creation of a question. Now it may be possible to input a value so large that the program
+can't handle it and crashes, but I don't think I'll want to account for that possibility here. The indended
+functions are functional, and I think that should suffice for now. I did test something along those lines though,
+and when inputting a ridiculously large number (as many 9's as was allowed) for the "How many cards are in a 
+regular card deck?" question, I got a message saying "Please input numbers, not letters". Odd result, but at least 
+it didn't crash.

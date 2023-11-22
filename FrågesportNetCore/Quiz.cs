@@ -38,7 +38,7 @@ namespace FrågesportNetCore
             Console.WriteLine("That's all the cards. Thanks for playing!" + Environment.NewLine + 
                 "Your final result was: " + correctAnswers + "/" + totalAnswers + "." + 
                 Environment.NewLine);
-            Console.Write(correctAnswers == totalAnswers ? "Perfect score!" : 
+            Console.WriteLine(correctAnswers == totalAnswers ? "Perfect score!" : 
                 correctAnswers == 0 ? "All incorrect..." : "Not bad!");
         }
         private bool AnswerIsGood(string answer, bool answerHasToBeInt, bool mcsa)

@@ -11,8 +11,8 @@ namespace FrågesportNetCore
         FileManager fm = new FileManager();
         Quiz quiz = new Quiz();
         public ActionHandler() { }        
-        public bool CreateQuestion(string answer, string question, string questionType, 
-            string questionAnswer, List<string> questionMcsaOptions)
+        public string CreateQuestion(string answer, string question, string questionType, 
+            string questionAnswer, List<string> questionMcsaOptions, bool modifyAQuestion)
         {           
             string combinedString = questionType + "|" + question + "|" + questionAnswer;
 
@@ -32,8 +32,11 @@ namespace FrågesportNetCore
                 combinedString += combinedMCSAOptionsString;
             }
 
-            fm.AddQuestionToFile(combinedString);
-            return true;
+            if (!modifyAQuestion)
+            {
+                fm.AddQuestionToFile(combinedString);
+            }
+            return combinedString;
         }
         public string DoWhileFunction(int highestAllowedNumber = 0)
         {
@@ -68,6 +71,18 @@ namespace FrågesportNetCore
                 }
             }
             return answer;
+        }
+        public int LogAllQuestions()
+        {
+            Console.WriteLine("These are all the questions that are currently saved in the quiz:" + 
+                Environment.NewLine);
+
+            int questionNumber = 0;
+            foreach (List<string> item in fm.ReadFile())
+            {
+                Console.WriteLine(++questionNumber + ". " + item[1]);
+            }
+            return questionNumber;
         }
         public void RunQuiz()
         {
