@@ -16,12 +16,20 @@ namespace FrågesportNetCore
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             pathAndFileName = Path.Combine(docPath, "quiz_questions.txt");
     }
-        public void AddQuestionToFile(string questionCardString)
+        public bool AddQuestionToFile(string questionCardString)
         {
+            foreach (List<string> item in ReadFile())
+            {
+                if (questionCardString.ToLower().Contains(item[1].ToLower()))
+                {
+                    return false; //Quiz does not allow you to add a question that already exists.
+                }
+            }
             using (StreamWriter outputFile = new StreamWriter(pathAndFileName, true))
             {
                 outputFile.WriteLine(questionCardString);
-            }
+            }            
+            return true;
         }
         public List<List<string>> ReadFile()
         {

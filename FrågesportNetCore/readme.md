@@ -99,7 +99,7 @@ as intended, in other words. During this lesson, I used the following links:
 
 2023-11-22
 -------------
-#### WPF Filhantering
+#### 4131 WPF Filhantering
 I've now also implemented question removing. The currently available options are now: 1. Take the quiz, 2. Add a
 quesiton to the quiz, and 3. Remove a quesiton from the quiz. I was pondering several different approaches when it
 came to removing questions from the quiz, and eventually used one that reads all the current lines from the quiz
@@ -174,3 +174,21 @@ it didn't crash.
 Quick fix later, I've added a .ToLower() in Quiz when checking the inputted answer to make sure that you still get 
 a right answer if you for example type "iceland" when the answer is "Iceland". 
 Makes it a little more user friendly, I think.
+
+2023-11-24
+--------------
+#### 4131 WPF Filhantering
+This morning, I thought of something. I thought: "What if you try to add a question that already exists in the quiz 
+to the quiz?". Answer: it works. Some fifteen minutes later, now it doesn't. In the FileManager class, 
+I added an if-statement to the AddQuestion method, like this:
+```
+if (questionCardString.ToLower().Contains(item[1].ToLower()))
+{
+    return false; //Quiz does not allow you to add a question that already exists.
+}
+```
+I also changed the return type from void to bool, so that ActionHandler can check that if the return value is false,
+write a message to the console stating that the question already exists. I also added trimming to the question and
+answer you input for adding questions, so that no unnecessary spaces are included in the beginning or end of a 
+question.
+* https://learn.microsoft.com/en-us/dotnet/standard/base-types/trimming

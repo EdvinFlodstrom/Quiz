@@ -14,7 +14,7 @@ namespace FrågesportNetCore
         public string CreateQuestion(string answer, string question, string questionType, 
             string questionAnswer, List<string> questionMcsaOptions, bool modifyAQuestion)
         {           
-            string combinedString = questionType + "|" + question + "|" + questionAnswer;
+            string combinedString = questionType + "|" + question.Trim() + "|" + questionAnswer.Trim();
 
             if (questionType == "MCSACard")
             {
@@ -34,7 +34,12 @@ namespace FrågesportNetCore
 
             if (!modifyAQuestion)
             {
-                fm.AddQuestionToFile(combinedString);
+                if (!fm.AddQuestionToFile(combinedString))
+                {
+                    Console.WriteLine(Environment.NewLine +
+                        "Failed to add question: question already exists in the quiz.");
+                    return "";
+                }
             }
             return combinedString;
         }
