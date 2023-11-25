@@ -8,6 +8,11 @@ namespace FrågesportNetCore
 {
     internal class ActionHandler
     {
+        List<QuestionCard> questionCards;
+        private int correctAnswers = 0;
+        private int totalAnswers = 0;
+        private int deckLength = 0;
+
         FileManager fm = new FileManager();
         Quiz quiz = new Quiz();
         public ActionHandler() { }        
@@ -35,28 +40,50 @@ namespace FrågesportNetCore
             if (!modifyAQuestion)
             {
                 if (!fm.AddQuestionToFile(combinedString))
-                {
-                    Console.WriteLine(Environment.NewLine +
-                        "Failed to add question: question already exists in the quiz.");
+                {                   
                     return "";
                 }
             }
             return combinedString;
         }
-        public string DoWhileFunction(int highestAllowedNumber = 0)
+        public string CheckQuestionAnswer(string answer)
         {
-            string answer = "";
+            QuestionCard card = questionCards[totalAnswers++];            
+
+            string[] splitStr = card.CorrectAnswer.Split(' ');
+
+            bool answerTrue = false;
+
+            foreach (string item in splitStr)
+            {
+                if (answer.ToLower().Contains(item.ToLower()))
+                {
+                    answerTrue = true;
+                }
+                else
+                {
+                    answerTrue = false;
+                    return "Incorrect.";
+                }
+            }
+            if (answerTrue)
+            {
+                correctAnswers++;
+                return "Correct!";
+            }
+            return "Incorrect.";
+        }
+        public string DoWhileFunction(string answer, int highestAllowedNumber = 0)
+        {
             int intAnswer = 0;
 
-            answer = Console.ReadLine();
             if (answer == "")
             {
                 answer = null;
             }
             if (highestAllowedNumber > 0)
-            {
-                bool successfulParse = int.TryParse(answer, out intAnswer);
-                if (!successfulParse)
+            {                
+                if (!(int.TryParse(answer, out intAnswer)))
                 {
                     intAnswer = 0;
                     answer = null;
@@ -77,21 +104,74 @@ namespace FrågesportNetCore
             }
             return answer;
         }
-        public int LogAllQuestions()
+        public List<string> GetAllQuestions()
         {
-            Console.WriteLine("These are all the questions that are currently saved in the quiz:" + 
-                Environment.NewLine);
-
+            List<string> listOfAllQuestions = new List<string>();
             int questionNumber = 0;
             foreach (List<string> item in fm.ReadFile())
             {
-                Console.WriteLine(++questionNumber + ". " + item[1]);
+                listOfAllQuestions.Add(++questionNumber + ". " + item[1]);
             }
-            return questionNumber;
+            return listOfAllQuestions;
         }
-        public void RunQuiz()
+        public string GetCorrectAndTotalAnswers()
         {
-            quiz.Run();
+            return "Correct answers/total answers: " + correctAnswers + "/" + totalAnswers;
+        }
+        public List<string> GetNewQuestion()
+        {
+            List<string> stringOfQuestionDetails = new List<string>();
+            
+            if (totalAnswers >= deckLength)
+            {
+                stringOfQuestionDetails.Add(null);
+                stringOfQuestionDetails.Add(GetQuizResults());
+
+                return stringOfQuestionDetails;
+            }
+
+            QuestionCard card = questionCards[totalAnswers];
+
+            stringOfQuestionDetails.Add(card.Question);
+
+            if (!(card.McsaOptions is null))
+            {
+                string stringOfMcsaOptions = "";
+                for (int i = 1; i < 6; i++)
+                {
+                    stringOfMcsaOptions += i + ". " + card.McsaOptions[i - 1];
+                    if (i < 5)
+                    {
+                        stringOfMcsaOptions += Environment.NewLine;
+                    }
+                }
+                stringOfQuestionDetails.Add(stringOfMcsaOptions);
+            }
+
+            return stringOfQuestionDetails;
+        }
+        public string GetQuizResults()
+        {
+            string resultString = "";
+
+            resultString += ("That's all the cards. Thanks for playing!" + Environment.NewLine +
+                "Your final result was: " + correctAnswers + "/" + totalAnswers + "." +
+                Environment.NewLine);
+            resultString += (correctAnswers == totalAnswers ? "Perfect score!" :
+                correctAnswers == 0 ? "All incorrect..." : "Not bad!");
+
+            return resultString;
+        }
+        public string PrepareQuiz()
+        {
+            questionCards = quiz.Run();
+
+            correctAnswers = 0;
+            totalAnswers = 0;
+            deckLength = questionCards.Count;
+
+            return "Welcome to the quiz! You will be presented with a question, for which you may submit an answer." +
+                Environment.NewLine + "Press any key to continue.";
         }
     }
 }

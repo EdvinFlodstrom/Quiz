@@ -69,6 +69,17 @@ namespace FrågesportNetCore
 
             return handler.CreateQuestion(answer, question, questionType, questionAnswer, questionMcsaOptions, modifyAQuestion);
         }
+        private List<string> LogAndReturnAllQuestions()
+        {
+            List<string> listOfAllQuestions = handler.GetAllQuestions();
+            Console.WriteLine("These are all the questions that are currently saved in the quiz:" +
+                Environment.NewLine);
+            foreach (string item in listOfAllQuestions)
+            {
+                Console.WriteLine(item);
+            }
+            return listOfAllQuestions;
+        }
         private void LogInstructions()
         {
             Console.Write("Welcome to the quiz UI! Your options are as follow:" + Environment.NewLine +
@@ -84,18 +95,24 @@ namespace FrågesportNetCore
             Console.WriteLine();
             if (answer == "1")
             {
-                handler.RunQuiz();
+                RunQuiz();
             }
             else if (answer == "2")
             {
                 if (CreateQuestion() != "")
                 {
                     Console.WriteLine(Environment.NewLine + "The question has been added successfully.");
-                }               
+                }
+                else
+                {
+                    Console.WriteLine(Environment.NewLine +
+                        "Question could not be added. Are you trying to add an already existing question?");
+                }
             }
             else if (answer == "3")
             {
-                int numberOfQuestions = handler.LogAllQuestions();
+                List<string> listOfAllQuestions = LogAndReturnAllQuestions();
+                int numberOfQuestions = listOfAllQuestions.Count;
 
                 Console.WriteLine(Environment.NewLine + "Choose the number of the question you want to remove from the quiz.");
                 fm.RemoveOrModifyQuestion(Convert.ToInt32(VerifyAnswer(numberOfQuestions)));
@@ -103,7 +120,8 @@ namespace FrågesportNetCore
             }
             else if (answer == "4")
             {
-                int numberOfQuestions = handler.LogAllQuestions();
+                List<string> listOfAllQuestions = LogAndReturnAllQuestions();
+                int numberOfQuestions = listOfAllQuestions.Count;
 
                 Console.WriteLine(Environment.NewLine + "Choose the number of the question you want to modify in the quiz.");
 
@@ -132,6 +150,33 @@ namespace FrågesportNetCore
             Console.WriteLine();
             return true;
         }
+        private void RunQuiz()
+        {
+            Console.Write(handler.PrepareQuiz());
+            Console.ReadLine();
+            Console.WriteLine();
+
+            for (List<string> i = handler.GetNewQuestion(); i[0] != null; i = handler.GetNewQuestion()) //Until i[0] is null, which happens when there are no more questions, keep calling handler.GetNewQuestion.
+            {
+                Console.WriteLine(i[0]);
+
+                if (i.Count > 1)
+                {
+                    Console.WriteLine(Environment.NewLine 
+                        + "Your options are as follow:");
+                    Console.WriteLine(i[1]);
+
+                    Console.WriteLine(handler.CheckQuestionAnswer(VerifyAnswer(5)));
+                }
+                else
+                {
+                    Console.WriteLine(handler.CheckQuestionAnswer(VerifyAnswer()));
+                }
+                Console.WriteLine(Environment.NewLine + handler.GetCorrectAndTotalAnswers() 
+                    + Environment.NewLine);
+            }
+            Console.WriteLine(handler.GetNewQuestion()[1]);
+        }
         private string VerifyAnswer(int highestAllowedNumber = 0)
         {
             Console.WriteLine();
@@ -156,7 +201,8 @@ namespace FrågesportNetCore
                         + Environment.NewLine);
                 }
                 Console.Write(answerFormat);
-                answer = handler.DoWhileFunction(highestAllowedNumber);
+                answer = Console.ReadLine();
+                answer = handler.DoWhileFunction(answer, highestAllowedNumber);
             } while (answer == null);
 
             return answer;

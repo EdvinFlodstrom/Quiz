@@ -192,3 +192,51 @@ write a message to the console stating that the question already exists. I also 
 answer you input for adding questions, so that no unnecessary spaces are included in the beginning or end of a 
 question.
 * https://learn.microsoft.com/en-us/dotnet/standard/base-types/trimming
+
+2023-11-24
+-------------
+#### WPF Filhantering
+It would seem that I have yet to separate the UI from the rest of the program to a sufficent degree. So I've started
+fixing that, and I have only one class left to fix, I think. Problem is, it's the first or second class I wrote, so
+at the time I wasn't thinking that I would eventually change the user interface. Alas, now I am. So, time to clean up
+the Quiz class, I suppose. Thing is, it is BAD. REALLY bad. I think I'll actually just ditch most of the methods
+in Quiz and move it all over to UserInterface instead, since so much of it is `Console.WriteLine` or `Console.ReadLine`.
+I'll keep some simple calculations like how many answers you've gotten correct or something similar, but so much of
+what's currently in Quiz does NOT belong there.
+
+I'm not sure if I can even salvage this class. I'm thinking of simply starting over with the class Quiz, to get it 
+right from the start. 
+
+I'm also thinking of another thing. Namely, either straight up removing Quiz.cs and moving all its functions and 
+methods to the class ActionHandler, or restructuring a few things a tad and treating Quiz like some sort of 
+action handler of its own.
+
+I'm going to try moving the instance creation of the class Quiz from ActionHandler to UserInterface. I'll also
+largely adjust all the functions in Quiz, so that it acts more like ActionHandler does. In the end, it's probably
+the smoothest fix I can think of.
+
+2023-11-25
+------------
+#### WPF Filhantering
+I'm getting an interesting error, here. When setting the return type to `List<QuestionCard>` for the Run() method in Quiz, 
+I get an error stating `Inconsistent accessibility: return type 'List<QuestionCard>' is less accessible than method
+Quiz.Run()`. I noticed that if I change the class from public back to internal, this error disappears. I'm unsure
+how I should deal with this error, since the class may have to be public in order for other user interfaces (such as
+the GUI that will be implemented soon) to have to have some form of access to the class Quiz.
+
+Some two minutes later, the problem is no more. When I was testing how to fix it, I tried changing the access modifier
+for another method in Quiz, one that returns a bool value. No error occured. It then took me about two seconds to 
+realize that I can't return a list of QuestionCards from Quiz, because the class QuestionCard was still internal. So 
+after switching QuestionCard from internal to public, it's working.
+* https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/access-modifiers
+
+Alright, quiz is back up and fully functional. The quiz is, functionally, the exact same as before, with one exception.
+For questions such as "What is Eyjafjallajökull, and where is it located?", you can now answer something like "2".
+In other words, the quiz doesn't stop you from inputting a single number for an answer that requires text.
+There are benefits with the quiz stopping such answers, but there are also some benefits with this simpler approach 
+as well, so I'll leave it as is for now. Anyhow, about 80% of what was in Quiz is now in ActionHandler, minus
+all the unnecessary `Console.WriteLine()` and `Console.ReadLine()`. All those are now in UserInterface, so the 
+program should be user interface-independent now. Since the user interface in usage has to call some methods in a
+specific order for the quiz to work, I suppose it could've been done better. But I suppose that is always the case.
+The quiz works, and now the UI is properly separated from the rest of the program. It took a while to salvage the
+atrocity that was the Quiz class, but it is done.

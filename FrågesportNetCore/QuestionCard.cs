@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FrågesportNetCore
 {
-    internal class QuestionCard
+    public class QuestionCard
     {
         private string question;
         private string correctAnswer;
