@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FrågesportNetCore
+﻿namespace QuizLibrary
 {
-    public class Quiz
+    internal class Quiz
     {
         private Deck deck;
         public Quiz() { }

@@ -237,6 +237,169 @@ There are benefits with the quiz stopping such answers, but there are also some 
 as well, so I'll leave it as is for now. Anyhow, about 80% of what was in Quiz is now in ActionHandler, minus
 all the unnecessary `Console.WriteLine()` and `Console.ReadLine()`. All those are now in UserInterface, so the 
 program should be user interface-independent now. Since the user interface in usage has to call some methods in a
-specific order for the quiz to work, I suppose it could've been done better. But I suppose that is always the case.
-The quiz works, and now the UI is properly separated from the rest of the program. It took a while to salvage the
-atrocity that was the Quiz class, but it is done.
+specific order for the quiz to work, I suppose it could've been done better. But I also suppose that is always the 
+case. The quiz works, and now the UI is properly separated from the rest of the program. It took me a while to 
+salvage the atrocity that was the Quiz class, but it is done.
+
+2023-11-29
+-------------
+#### WPF Filhantering
+I've been trying to implement a GUI for a bit now, but I was struggling with getting the project to start. I kept 
+getting an error in XamlReader.cs (I haven't written this class). The Xaml wasn't able to parse, it seems. It took
+me a while to find the cause of the error, but I've now found it. Adding `ActionHandler handler = new ActionHandler();`
+to MainWindow.xaml.cs is the problem. Thing is, I don't know why this throws an error. I've tried running both 
+the "FrågesportNetCore" project and the GUI project at the same time, but it still throws an error (I have a
+`using FrågesportNetCore;` reference in the class that causes the error. This same error is thrown regardless of
+where I instantiate the ActionHandler class, in the constructor or not. ActionHandler is also public. The error
+is also thrown regardless of whether ActionHandler has a constructor or not.
+
+Some testing later, I've made a little progress. I implemented a button that, when you press it, should write
+instructions. It starts by instantiating ActionHandler. Then the program breaks. Same error as before, but on a 
+different line and in EventRoute.cs instead of XamlReader.cs. It can't load FrågesportNetCore.exe because the 
+.exe or .dll file is invalid. Same as before, even if I run both projects at the same time, trying to instantiate a 
+class from FrågesportNetCore in WPF_GUI_Question instantly throws an error. At least I got the button working, so 
+that's some measure of progress at least.
+
+I'm not really getting anywhere with debugging this little problem, so I'll paste the details below for some reason:
+
+```
+System.BadImageFormatException
+  HResult=0x800700C1
+  Message=Could not load file or assembly 'C:\Users\04edfl12\OneDrive - Stenungsunds Kommun\Programmering\FrågesportNetCore\WPF_GUI_Question\bin\Debug\net8.0-windows\FrågesportNetCore.exe'. Format of the executable (.exe) or library (.dll) is invalid.
+  Source=WPF_GUI_Question
+  StackTrace:
+   at WPF_GUI_Question.MainWindow.Btn1_Click(Object sender, RoutedEventArgs e) in C:\Users\04edfl12\OneDrive - Stenungsunds Kommun\Programmering\FrågesportNetCore\WPF_GUI_Question\MainWindow.xaml.cs:line 32
+   at System.Windows.EventRoute.InvokeHandlersImpl(Object source, RoutedEventArgs args, Boolean reRaised) in System.Windows\EventRoute.cs:line 123
+   at System.Windows.UIElement.RaiseEventImpl(DependencyObject sender, RoutedEventArgs args) in System.Windows\UIElement.cs:line 6297
+   at System.Windows.Controls.Primitives.ButtonBase.OnClick()
+   at System.Windows.Controls.Button.OnClick()
+   at System.Windows.Controls.Primitives.ButtonBase.OnMouseLeftButtonUp(MouseButtonEventArgs e)
+   at System.Windows.RoutedEventArgs.InvokeHandler(Delegate handler, Object target) in System.Windows\RoutedEventArgs.cs:line 201
+   at System.Windows.EventRoute.InvokeHandlersImpl(Object source, RoutedEventArgs args, Boolean reRaised) in System.Windows\EventRoute.cs:line 123
+   at System.Windows.UIElement.ReRaiseEventAs(DependencyObject sender, RoutedEventArgs args, RoutedEvent newEvent) in System.Windows\UIElement.cs:line 6272
+   at System.Windows.RoutedEventArgs.InvokeHandler(Delegate handler, Object target) in System.Windows\RoutedEventArgs.cs:line 201
+   at System.Windows.EventRoute.InvokeHandlersImpl(Object source, RoutedEventArgs args, Boolean reRaised) in System.Windows\EventRoute.cs:line 123
+   at System.Windows.UIElement.RaiseEventImpl(DependencyObject sender, RoutedEventArgs args) in System.Windows\UIElement.cs:line 6297
+   at System.Windows.UIElement.RaiseTrustedEvent(RoutedEventArgs args) in System.Windows\UIElement.cs:line 2710
+   at System.Windows.Input.InputManager.ProcessStagingArea() in System.Windows.Input\InputManager.cs:line 546
+   at System.Windows.Input.InputProviderSite.ReportInput(InputReport inputReport) in System.Windows.Input\InputProviderSite.cs:line 52
+   at System.Windows.Interop.HwndMouseInputProvider.ReportInput(IntPtr hwnd, InputMode mode, Int32 timestamp, RawMouseActions actions, Int32 x, Int32 y, Int32 wheel) in System.Windows.Interop\HwndMouseInputProvider.cs:line 797
+   at System.Windows.Interop.HwndMouseInputProvider.FilterMessage(IntPtr hwnd, WindowMessage msg, IntPtr wParam, IntPtr lParam, Boolean& handled) in System.Windows.Interop\HwndMouseInputProvider.cs:line 350
+   at System.Windows.Interop.HwndSource.InputFilterMessage(IntPtr hwnd, Int32 msg, IntPtr wParam, IntPtr lParam, Boolean& handled) in System.Windows.Interop\HwndSource.cs:line 1140
+   at MS.Win32.HwndWrapper.WndProc(IntPtr hwnd, Int32 msg, IntPtr wParam, IntPtr lParam, Boolean& handled)
+   at MS.Win32.HwndSubclass.DispatcherCallbackOperation(Object o)
+   at System.Windows.Threading.ExceptionWrapper.InternalRealCall(Delegate callback, Object args, Int32 numArgs)
+   at System.Windows.Threading.ExceptionWrapper.TryCatchWhen(Object source, Delegate callback, Object args, Int32 numArgs, Delegate catchHandler)
+   at System.Windows.Threading.Dispatcher.LegacyInvokeImpl(DispatcherPriority priority, TimeSpan timeout, Delegate method, Object args, Int32 numArgs)
+   at MS.Win32.HwndSubclass.SubclassWndProc(IntPtr hwnd, Int32 msg, IntPtr wParam, IntPtr lParam)
+   at MS.Win32.UnsafeNativeMethods.DispatchMessage(MSG& msg)
+   at System.Windows.Threading.Dispatcher.PushFrameImpl(DispatcherFrame frame)
+   at System.Windows.Application.RunDispatcher(Object ignore)
+   at System.Windows.Application.RunInternal(Window window)
+   at WPF_GUI_Question.App.Main()
+```
+
+Lot of details in this one, I think. I came across an answer on StackOverflow 
+(https://stackoverflow.com/questions/323140/system-badimageformatexception-could-not-load-file-or-assembly-from-installuti)
+suggesting to change the processor architecture for AnyCPU projects from auto. Alas, this did not fix my problem.
+
+2023-12-01
+--------------
+#### WPF Filhantering
+Right so the UI was not properly separated from the rest of the program. But now it is! I think. The console UI is now
+located in a new project, "FrågesportNetFramework", which is essentially a copy of "FrågesportNetCore". I removed
+the latter, since it has been replaced. Kind of funny, in a way, how this project as a whole has changed. Anyhow
+I had a lot of trouble fixing dependencies and stuff with the three projects, but it works now. It seems that 
+"FrågesportNetCore" targeting .NET framework version 4.8 was not very good for creating dependencies with projects that
+target .NET framework version 8. So "FrågesportNetFramework" targets .NET framework version 8, and now it all works.
+I'll continue working on the GUI, which can access all functions and classes of the new project QuizLibrary, which is
+where all the classes that the user doesn't directly interact with are located.
+* https://stackoverflow.com/questions/38042130/what-is-a-circular-dependency-and-how-can-i-solve-it
+* https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs0246?f1url=%3FappId%3Droslyn%26k%3Dk(CS0246)
+* https://stackoverflow.com/questions/48555467/cant-add-reference-to-visual-c-sharp-console-app-in-visual-studio
+* https://stackoverflow.com/questions/38148128/how-do-i-reference-a-net-framework-project-in-a-net-core-project
+
+I'm not sure why I keep thinking I've properly separated the UI-related classes from the rest, to a  SUFFICIENT degree. 
+Clearly I haven't, yet. I was about to implement the whole "choose your option" in the GUI, and I'm only now realizing 
+how far from adequate the UserInterface class is. I should probably tacke it immediately to make my life a little
+simpler. And I should probably stop thinking I've ever completely separated the UI from the rest of the project. At 
+this point, it's getting somewhat ridiculous how many times I've said I've completed it only to realize how incorrect
+I've been *every time*...
+
+2023-12-05
+-------------
+#### WPF Filhantering
+With the quiz.cs class, I feel like I sort of shot myself in the foot with the poor separation of UI and such. 
+UserInterface, though, this is something else. I hardly know what it should look like with a proper separation, so I 
+don't know if I'm even doing it right. I *think* it's getting a little better, maybe? It's taking far longer than it
+has any right to, though. Henceforth, I will be sure never to make these mistakes again, as it is an atrocious process 
+to separate an existing class into part-UI, and part-not-UI like this.
+
+I've successfully got the quiz working, but I'm having issues with making question creation efficient. I'm struggling
+with separating it in a good way, since there needs to be various numbers of `Console.ReadLine()` based on what you
+answer. This leads to issues when I need to call certain methods in a certain order a certain amount of times. My
+main idea is to return the name of a method (or maybe just the method itself) from InterfaceHandler to UserInterface
+to make it easier to call the correct methods in the correct order after each `Console.ReadLine()`. I don't know how
+to do this, though. I don't even know if it's possible (or good practice for that matter). I've researched 
+delegates and asynchronous methods, but I'm unsure of whether one of these will actually provide what I need.
+* https://stackoverflow.com/questions/25191512/async-await-return-task
+* https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/await
+* https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/delegates/how-to-combine-delegates-multicast-delegates
+
+2023-12-06
+--------------
+#### WPF Filhantering
+I'm growing more certain that I, with my current skill, am unable to *fully* separate the UI from the rest. I'm making
+progress, sure, but not enough. I guess I'll have to accept an inadequate separation in this case, but I will do my
+best at separating them still. From what I can tell so far, UserInterface is looking to be around half of it's 
+previous length in code, so it's not like I've done nothing I suppose.
+
+2023-12-08
+-----------------
+#### WPF Filhantering
+I've continued working on UserInterface. I'm almost done with it, but then I realized that the MCSA questions are broken.
+Again. The options aren't displaying, but I'll fix it in due time. It probably won't take too long, I think. I've also
+made some progress with adding options for removing/modifying questions, and it's going well enough.
+
+Update: I don't know what I'm doing. Somewhere, sometime, I changed something. Not a great combination of events. So 
+anyhow the questions aren't randomized, ever. I have a method, Draw(), in Deck, for this. I must've used it at some
+point, since I recall the questions being randomized before I started trying to fix the atrocity that was UserInterface.
+So I also need to fix the questions not being randomized. Not much fun in seeing them in the same order all the time,
+I think.
+
+2023-12-09
+--------------
+I've fixed the questions not being randomized. It didn't take that long, but it was an interesting path I had to 
+take to get there. It showed that this project is getting a little complex, maybe too complex for what it is. Anyhow,
+this is the path I followed: 1. UserInterface calls InterfaceHandler.PerformAction(). 2. InterfaceHandler calls 
+ActionHandler.PrepareQuiz. 3. ActionHandler calls Quiz.Run. Quiz creates a new instance of Deck, randomizes
+all the cards and returns them as a List of QuestionCards. This was the first part, where I saw how I was randomizing
+the questions. Second part: 1. UserInterface calls InterfaceHandler.PerformAction(). InterfaceHandler calls
+ActionHandler.GetAllQuestions(). And here the problem was. I'm not sure why or when, but at some point when implementing
+the method GetAllQuestions(), I chose to get the questions from FileManager.ReadFile() instead of from the *already 
+existing list containing all the questions*. I really don't know what I was thinking there. Anyhow, since the 
+randomization of questions happens in Quiz, getting the questions from FileManager.ReadFile() will cause them to be
+in the same order as they are in the .txt document, every time. Quick fix later, the questions are now being randomized.
+
+I've also found the reason for the MCSA questions not displaying their answers. Similar to the previous question, I
+did something at one point and seem to have forgotten about it later. As it is right now, when taking the quiz,
+all the questions get added to a list, twice. So if there are ten questions, the list will contain twenty questions.
+The MCSA questions added by one method do contain options, while they don't in the other.
+
+Two minutes later, problem solved. The debugger really is quite helpful. So anyway what I had to do was move the
+calling of the RunQuiz() method in InterfaceHandler, and clear listOfAllQuestions instead of setting it to 
+ActionHandler.GetAllQuestions().
+
+Now that I'm working on targeting questions currently in the quiz, I realized that the questions not being randomized
+above was actually not the problem, the problem was simply how I was adding them to a list of questions. So I changed
+some of that, and it's now possible to get the questions as randomized or not. This will make it a little simpler
+to target questions when you want to remove or modify them.
+
+At last, the console user interface is now working again. It took a gruesome amount of time to repair it all after this
+brutal separation, but I dare not assume that it is wholly separated just yet. At least it's better now, I think. 
+UserInterface and InterfaceHandler include over 50% more code than what UserInterface had before, but hopefully it'll save
+me a lot of time and effort when I implement the GUI, which I will continue doing tomorrow. There was a lot of debugging
+involved in this whole part, and doing it without the debugger would have been an absolute nightmare. Being able to step
+into methods and follow variable assignment and operations was certainly a saving grace here.
+* https://stackoverflow.com/questions/7745509/how-to-specify-default-value-for-list-parameter-in-a-c-sharp-function
+* https://stackoverflow.com/questions/4630444/how-to-skip-optional-parameters-in-c

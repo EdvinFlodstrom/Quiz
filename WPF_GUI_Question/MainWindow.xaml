@@ -6,7 +6,41 @@
         xmlns:local="clr-namespace:WPF_GUI_Question"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <StackPanel>
+        <StackPanel.Resources>
+            
+            <Style TargetType="TextBlock">
+                <Setter Property="FontSize" Value="40"/>
+                <Setter Property="Margin" Value="10"/>
+            </Style>
+            
+            <Style TargetType="TextBox">
+                <Setter Property="FontSize" Value="30"/>
+                <Setter Property="Margin" Value="10"/>
+                <Setter Property="MaxWidth" Value="300"/>
+            </Style>
+                
+            <Style TargetType="Button">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="Width" Value="150"></Setter>
+            </Style>
+        </StackPanel.Resources>
 
-    </Grid>
+        <StackPanel>
+            <TextBlock Text="Quiz" TextAlignment="Center"></TextBlock>
+        </StackPanel>
+
+        <StackPanel Name="InstructionsAndAnswer" IsEnabled="false">
+            <TextBlock FontSize="20" Name="Instructions"></TextBlock>
+            <TextBox FontSize="20" Name="QuestionAnswer"></TextBox>
+        </StackPanel>
+
+        <StackPanel>
+            <Button Content="Submit answer" Name="SubmitAnswerButton" Click="SubmitAnswer_Click" IsDefault="True"></Button>
+        </StackPanel>
+
+
+    </StackPanel>
+    
+    
 </Window>

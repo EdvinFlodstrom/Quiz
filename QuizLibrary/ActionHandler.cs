@@ -1,51 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FrågesportNetCore
+﻿namespace QuizLibrary
 {
     internal class ActionHandler
     {
+        FileManager fm = new FileManager();
+        Quiz quiz = new Quiz();
+
         List<QuestionCard> questionCards;
         private int correctAnswers = 0;
         private int totalAnswers = 0;
         private int deckLength = 0;
-
-        FileManager fm = new FileManager();
-        Quiz quiz = new Quiz();
-        public ActionHandler() { }        
-        public string CreateQuestion(string answer, string question, string questionType, 
-            string questionAnswer, List<string> questionMcsaOptions, bool modifyAQuestion)
-        {           
-            string combinedString = questionType + "|" + question.Trim() + "|" + questionAnswer.Trim();
-
-            if (questionType == "MCSACard")
-            {
-                string combinedMCSAOptionsString = "";
-
-                foreach (string item in questionMcsaOptions)
-                {
-                    combinedMCSAOptionsString += item;
-                    combinedMCSAOptionsString += ",";
-                }
-
-                combinedMCSAOptionsString = combinedMCSAOptionsString.Remove(combinedMCSAOptionsString.Length - 1);
-
-                combinedString += "|";
-                combinedString += combinedMCSAOptionsString;
-            }
-
-            if (!modifyAQuestion)
-            {
-                if (!fm.AddQuestionToFile(combinedString))
-                {                   
-                    return "";
-                }
-            }
-            return combinedString;
-        }
+        
+        public ActionHandler() { }
         public string CheckQuestionAnswer(string answer)
         {
             QuestionCard card = questionCards[totalAnswers++];            
@@ -73,7 +38,7 @@ namespace FrågesportNetCore
             }
             return "Incorrect.";
         }
-        public string DoWhileFunction(string answer, int highestAllowedNumber = 0)
+        public string DoWhileFunction(string answer, List<string> mcsaOptions, int highestAllowedNumber = 0)
         {
             int intAnswer = 0;
 
@@ -82,7 +47,7 @@ namespace FrågesportNetCore
                 answer = null;
             }
             if (highestAllowedNumber > 0)
-            {                
+            {
                 if (!(int.TryParse(answer, out intAnswer)))
                 {
                     intAnswer = 0;
@@ -102,6 +67,13 @@ namespace FrågesportNetCore
                     }
                 }
             }
+            if (!(mcsaOptions is null))
+            {
+                if (mcsaOptions.Contains(answer))
+                {
+                    answer = null;
+                }
+            }
             return answer;
         }
         public List<string> GetAllQuestions()
@@ -118,19 +90,18 @@ namespace FrågesportNetCore
         {
             return "Correct answers/total answers: " + correctAnswers + "/" + totalAnswers;
         }
-        public List<string> GetNewQuestion()
+        public List<string> GetNewQuestion(int indexOfCurrentQuestion)
         {
             List<string> stringOfQuestionDetails = new List<string>();
             
-            if (totalAnswers >= deckLength)
+            if (indexOfCurrentQuestion >= deckLength)
             {
                 stringOfQuestionDetails.Add(null);
-                stringOfQuestionDetails.Add(GetQuizResults());
 
                 return stringOfQuestionDetails;
             }
 
-            QuestionCard card = questionCards[totalAnswers];
+            QuestionCard card = questionCards[indexOfCurrentQuestion];
 
             stringOfQuestionDetails.Add(card.Question);
 
@@ -162,16 +133,13 @@ namespace FrågesportNetCore
 
             return resultString;
         }
-        public string PrepareQuiz()
+        public void PrepareQuiz()
         {
             questionCards = quiz.Run();
 
             correctAnswers = 0;
             totalAnswers = 0;
-            deckLength = questionCards.Count;
-
-            return "Welcome to the quiz! You will be presented with a question, for which you may submit an answer." +
-                Environment.NewLine + "Press any key to continue.";
+            deckLength = questionCards.Count;            
         }
     }
 }

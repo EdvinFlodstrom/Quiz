@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FrågesportNetCore
+﻿namespace QuizLibrary
 {
-    internal class FileManager
+    public class FileManager
     {
         private string pathAndFileName;
         public FileManager()
@@ -41,7 +34,7 @@ namespace FrågesportNetCore
 
                 while (row != null)
                 {
-                    List<string> listOfRow = row.Split('|').ToList(); //Splits into list: "QuestionCard", "[q]" etc.
+                    List<string> listOfRow = row.Split('|').ToList(); //Splits into list: "QuestionCard", "[question]" etc.
                     lines.Add(listOfRow);
                     row = sr.ReadLine();
                 }
