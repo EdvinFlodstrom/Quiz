@@ -8,39 +8,50 @@
         Title="MainWindow" Height="450" Width="800">
     <StackPanel>
         <StackPanel.Resources>
-            
+
             <Style TargetType="TextBlock">
                 <Setter Property="FontSize" Value="40"/>
                 <Setter Property="Margin" Value="10"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
             </Style>
-            
+
             <Style TargetType="TextBox">
                 <Setter Property="FontSize" Value="30"/>
                 <Setter Property="Margin" Value="10"/>
                 <Setter Property="MaxWidth" Value="300"/>
             </Style>
-                
+
             <Style TargetType="Button">
-                <Setter Property="FontSize" Value="15"/>
-                <Setter Property="Width" Value="150"></Setter>
+                <Setter Property="FontSize" Value="15"></Setter>
+                <Setter Property="Width" Value="500"></Setter>
+                <Setter Property="Height" Value="30"></Setter>
+                <Setter Property="Margin" Value="3"></Setter>
             </Style>
         </StackPanel.Resources>
 
         <StackPanel>
-            <TextBlock Text="Quiz" TextAlignment="Center"></TextBlock>
+            <TextBlock Text="Quiz" Name="QuizText"></TextBlock>
         </StackPanel>
 
         <StackPanel Name="InstructionsAndAnswer" IsEnabled="false">
             <TextBlock FontSize="20" Name="Instructions"></TextBlock>
-            <TextBox FontSize="20" Name="QuestionAnswer"></TextBox>
+            <Button Content="" Name="Option1Button" Click="Option1_Click" IsEnabled="False"></Button>
+            <Button Content="" Name="Option2Button" Click="Option2_Click" IsEnabled="False"></Button>
+            <Button Content="" Name="Option3Button" Click="Option3_Click" IsEnabled="False"></Button>
+            <Button Content="" Name="Option4Button" Click="Option4_Click" IsEnabled="False"></Button>
+            <Button Content="" Name="Option5Button" Click="Option5_Click" IsEnabled="False"></Button>
+            <TextBox FontSize="20" Name="QuestionAnswer" IsEnabled="False"></TextBox>
         </StackPanel>
 
         <StackPanel>
-            <Button Content="Submit answer" Name="SubmitAnswerButton" Click="SubmitAnswer_Click" IsDefault="True"></Button>
+            <Button Content="Submit answer" Name="SubmitAnswerButton" Click="SubmitAnswer_Click" IsDefault="True" IsEnabled="False"></Button>
+        </StackPanel>
+
+        <StackPanel>
+            <Button Content="Continue" Name="ContinueButton" Click="Continue_Click" IsDefault="True" IsEnabled="False"></Button>
         </StackPanel>
 
 
+
     </StackPanel>
-    
-    
 </Window>

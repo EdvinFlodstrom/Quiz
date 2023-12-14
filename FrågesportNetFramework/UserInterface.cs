@@ -1,4 +1,5 @@
 ﻿using QuizLibrary;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.Metrics;
 using System.Net.NetworkInformation;
 
@@ -31,7 +32,10 @@ namespace FrågesportNetFramework
 
             do
             {
-                Console.WriteLine(handler.LogInstructions());
+                foreach (string item in handler.LogInstructions())
+                {
+                    Console.WriteLine(item);
+                }
                 answer = DoWhileMethod(5);
                 ifEmptyBreakLook = handler.PerformAction(answer)[0][0];
                 if (answer == "1")
@@ -39,15 +43,15 @@ namespace FrågesportNetFramework
                     Console.WriteLine(ifEmptyBreakLook + Environment.NewLine);                    
                     for (int i = 0; i < handler.TotalNumberOfQuestions; i++)
                     {                        
-                        string quizQuestion = handler.GetQuestion(i);
-                        Console.WriteLine(quizQuestion);
+                        QuestionCard quizQuestion = handler.GetQuestion(i);
+                        List<string> quizQuestionDetails = handler.GetQuestionDetails(quizQuestion);
+                        foreach (string item in quizQuestionDetails)
+                        {
+                            Console.WriteLine(item);
+                        }
                         do
                         {
-                            int highestAllowedNumber = 0;
-                            if (quizQuestion.Contains(handler.OptionsString))
-                            {
-                                highestAllowedNumber = 5;
-                            }
+                            int highestAllowedNumber = handler.CheckIfQuestionIsMcsa(quizQuestion);
                             Console.Write(handler.GetAnswerFormat(highestAllowedNumber));
                             answer = Console.ReadLine();
                             answer = handler.VerifyAnswer(answer, highestAllowedNumber);
@@ -92,7 +96,7 @@ namespace FrågesportNetFramework
                             {
                                 removeAQuestion = true;
                             }
-                            continue;
+                            continue; //The above are only for checking if the user wants to add/modify a question. These values are not meant to be used for anything else.
                         }
                         if ((modifyAQuestion || removeAQuestion) && !hasTargetedAQuestion)
                         {

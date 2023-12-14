@@ -4,6 +4,7 @@
     {
         private Random rnd = new Random();
         private List<QuestionCard> cards = new List<QuestionCard>();
+        private List<QuestionCard> sortedCards = new List<QuestionCard>();
         private FileManager fm = new FileManager();
         public List<QuestionCard> Cards
         {
@@ -12,19 +13,17 @@
                 return cards;
             }
         }
+        public List<QuestionCard> SortedCards
+        {
+            get
+            {
+                return sortedCards;
+            }
+        }
         public Deck()
         {
-            foreach(List<string> line in fm.ReadFile())
-            {
-                if (line[0] == "QuestionCard")
-                {
-                    cards.Add(new QuestionCard(line[1], line[2]));
-                }
-                else if (line[0] == "MCSACard")
-                {
-                    cards.Add(new MCSACard(line[1], line[2], line[3].Split(',').ToList()));
-                }
-            }
+            cards = fm.ReadFile();
+            sortedCards = fm.ReadFile();
         }
         public QuestionCard Draw()
         {

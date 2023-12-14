@@ -5,13 +5,6 @@
         private string question;
         private string correctAnswer;
         private List<string> mcsaOptions;
-        public string CorrectAnswer
-        {
-            get
-            {
-                return correctAnswer;
-            }
-        }
         public string Question
         {
             get
@@ -31,6 +24,32 @@
             this.question = question;
             this.correctAnswer = correctAnswer;
             this.mcsaOptions = mcsaOptions;
+        }
+        public int CheckQuestionAnswer(string answer)
+        {
+            int pointsGained = 0;
+
+            string[] splitStr = correctAnswer.Split(' ');
+
+            bool answerTrue = false;
+
+            foreach (string item in splitStr)
+            {
+                if (answer.ToLower().Contains(item.ToLower()))
+                {
+                    answerTrue = true;
+                }
+                else
+                {
+                    answerTrue = false;
+                    return 0;
+                }
+            }
+            if (answerTrue)
+            {                
+                return 1;
+            }
+            return 0;
         }
     }
 }

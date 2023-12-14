@@ -17,6 +17,10 @@
                 questionCards.Add(deck.Draw());
             }
             return questionCards;
-        }        
+        }
+        public List<QuestionCard> ListOfSortedQuestionCards()
+        {
+            return deck.SortedCards;
+        }
     }
 }

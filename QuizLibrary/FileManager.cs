@@ -11,9 +11,9 @@
     }
         public bool AddQuestionToFile(string questionCardString)
         {
-            foreach (List<string> item in ReadFile())
+            foreach (QuestionCard item in ReadFile())
             {
-                if (questionCardString.ToLower().Contains(item[1].ToLower()))
+                if (questionCardString.ToLower().Contains(item.Question.ToLower()))
                 {
                     return false; //Quiz does not allow you to add a question that already exists.
                 }
@@ -24,7 +24,7 @@
             }            
             return true;
         }
-        public List<List<string>> ReadFile()
+        public List<QuestionCard> ReadFile()
         {
             using (var sr = new StreamReader(pathAndFileName))
             {
@@ -38,12 +38,24 @@
                     lines.Add(listOfRow);
                     row = sr.ReadLine();
                 }
-                return lines;
+
+                List<QuestionCard> listOfAllCards = new List<QuestionCard>();
+                foreach (List<string> line in lines)
+                {
+                    if (line[0] == "QuestionCard")
+                    {
+                        listOfAllCards.Add(new QuestionCard(line[1], line[2]));
+                    }
+                    else if (line[0] == "MCSACard")
+                    {
+                        listOfAllCards.Add(new MCSACard(line[1], line[2], line[3].Split(',').ToList()));
+                    }
+                }
+                return listOfAllCards;
             }
         }
         public void RemoveOrModifyQuestion(int numberOfQuestion, string modifiedQuestion = "")
         {
-            numberOfQuestion--;
             string newStringOfQuestions = "";
             int indexOfCurrentItem = 0;
 

@@ -369,6 +369,7 @@ I think.
 
 2023-12-09
 --------------
+#### WPF Filhantering
 I've fixed the questions not being randomized. It didn't take that long, but it was an interesting path I had to 
 take to get there. It showed that this project is getting a little complex, maybe too complex for what it is. Anyhow,
 this is the path I followed: 1. UserInterface calls InterfaceHandler.PerformAction(). 2. InterfaceHandler calls 
@@ -403,3 +404,78 @@ involved in this whole part, and doing it without the debugger would have been a
 into methods and follow variable assignment and operations was certainly a saving grace here.
 * https://stackoverflow.com/questions/7745509/how-to-specify-default-value-for-list-parameter-in-a-c-sharp-function
 * https://stackoverflow.com/questions/4630444/how-to-skip-optional-parameters-in-c
+
+2023-12-12
+-------------
+#### WPF Filhantering
+At first, I was trying to fix some things with MCSA questions in the GUI. I was trying to use patterns and Regex and a
+bunch of stuff that was unnecessary. I then discussed the project with my teacher, and came to the conclusion that I've 
+been handling some things incorrectly. We set up a basic structure, and I think it's now time to actually get this
+project going. I've been handling the QuestionCard and MCSACard classes wrong, since when for example comparing the 
+inputted answer with the correct answer, I haven't accessed the card's actual correct answer but rather a copy of
+that value. Some unnecessary things, in other words. I will clean up all of that, then fix the GUI (which will be simpler
+with these fixes) and then implement more features. Just commenting out two object variables that did not adhere to
+these principles brought about 10 errors. It's time to actually get this project fixed, definitively.
+
+Fascinating, how much I fixed by only removing code. All I did was move code, remove code, and combine InterfaceHandler
+with ActionHandler. And now the program works a lot better. The command-line UI still works great (I only had to 
+adjust some minor things to make it work), and the implementation of the GUI is going well, too. Before I changed
+the things I mentioned above, I was struggling with displaying each option for MCSA questions on a different button. 
+I was trying to use patterns and regexes and it was *not* going well. But after the changes, it took me a mere minute
+to get it working perfectly. I suppose this will be a lesson always to keep a clear idea of what I am doing, and not
+implement a bunch of useless workarounds for no obvious reason.
+
+When checking the answer that the user inputs in the GUI, I ran into a problem with checking the MCSA answer. The 
+regular questions where you type in your answer worked fine, but the MCSA ones did not. It took me a minute or two to
+realize, but when I was debugging the project I realized that sending the `[button].Content.ToString()` sends the 
+content of the button (obviously), while InterfaceHandler expects an answer in the range 1-5. No major issue, I simply
+changed `[button].Content.ToString()` to `"[number of the button in question]"`.
+
+2023-12-13
+------------
+#### WPF Filhantering
+I've run into a curious issue. When checking the answer in the GUI, I always get an incorrect. Using the debugger, I 
+quickly saw that the question was comparing with a different question than is displayed. It was working earlier, so 
+I must've changed something recently. I know for a fact it has to do with indexes, I just need to find where.
+
+As expected, 1) Solving the issue took about 20 seconds, and 2) It had to do with indexes. The issue was simply that I
+moved the incrementation of an index up, instead of down, in the code. So the quiz can now be played in a GUI as well,
+it is fully functional and can be replayed both in a command-line UI and a GUI now. I of course have to add the remaining
+four actions to the GUI as well, some of which will be a little more troublesome than others. Like a true professional,
+I copy pasted the first reply from StackOverflow regarding one of these actions. In fairness, the code was literally
+just `Application.Current.Shutdown();`. 
+* https://stackoverflow.com/questions/2820357/how-do-i-exit-a-wpf-application-programmatically
+
+Problem spotted! Not sure where it came from this time. In the command-line UI, when I want to choose a question to 
+target, for removal or modification, the questions come in a randomized order. However, if I target question number 3
+(they are lined up with a number, 1-cards.Count), the program targets the third question in the file, which is the
+third question when they are *not* randomized. I know what the issue is, I just have to think of a nice way to solve it.
+
+The problem was a little more complex than I was expecting, but I think I know what to do now. The user picks a question
+to target, from a randomized list. The number of the question is then used to target a question. I was trying to 
+convert this number of the question from the randomized list to the number of the same question in the sorted list. 
+The problem I was trying to fix is that I couldn't get IndexOf to work. My code looked like this: 
+`numberOfQuestion = quiz.ListOfSortedQuestionCards().IndexOf(questionCards[Convert.ToInt32(numberOfQuestion)]).ToString();`.
+It took me a while to realize (I think I know what is wrong anyway), but the problem is that I'm comparing two different
+instances of the class QuestionCard. They are identical, but they are still different instances of the class. I assume
+this is why it doesn't work.
+
+Bingo! Comparing the questions of the questions instead of the questions themselves (questionCard.Question instead of just
+questionCard) did the trick.
+
+2023-12-14
+----------------
+#### WPF Filhantering
+It wasn't quite as easy as it seemed at first, to fix the issue I ran into yesterday. But now it is fixed, so there's 
+that. I changed the code to: 
+```
+foreach (QuestionCard item in quiz.ListOfSortedQuestionCards())
+    {
+        if (item.Question == questionCards[Convert.ToInt32(numberOfQuestion)].Question)
+        {                    
+            numberOfQuestion = quiz.ListOfSortedQuestionCards().IndexOf(item).ToString();
+            break;
+        }
+    }
+```
+Not too complicated, but it works. Back to the GUI now.
