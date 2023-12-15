@@ -67,6 +67,20 @@ namespace WPF_GUI_Question
             hasCreatedAnswer = false;
 
             listWithDetailsOfQuestionActions = handler.PerformAction(numberOfActionToPerform);
+
+            string instructionsString = "Adding question to the quiz";
+
+            if (isRemovingQuestion)
+            {
+                instructionsString = "Removing question from the quiz";
+            }
+            else if (isModifyingQuestion)
+            {
+                instructionsString = "Modifying question in the quiz";
+            }
+
+            Instructions.Text = instructionsString;
+            ContinueButton.IsEnabled = true;
         }
         private void EnableOrDisableOptionButtons(bool setState, bool clearButtonContent)
         {
@@ -111,7 +125,7 @@ namespace WPF_GUI_Question
         private void Continue_Click(object sender, RoutedEventArgs e)
         {
             if (isTakingQuiz && !hasFinishedQuiz)
-            {                
+            {
                 if (indexOfCurrentQuestion >= handler.TotalNumberOfQuestions)
                 {
                     Instructions.Text = handler.GetQuizResults();
@@ -144,6 +158,10 @@ namespace WPF_GUI_Question
             {
                 hasFinishedQuiz = false;
                 InitialInstructions();
+            }
+            else if (isCreatingQuestion)
+            {
+                Instructions.Text = listWithDetailsOfQuestionActions[!isModifyingQuestion ? 0 : 2][0]; //Check this.
             }
         }
         private void SubmitAnswer_Click(object sender, RoutedEventArgs e)
@@ -178,7 +196,7 @@ namespace WPF_GUI_Question
 
 
             //If user wants to create question.
-            //CreateQuestionInit(true, false, false, "2");          
+            CreateQuestionInit(true, false, false, "2");
         }
         private void Option3_Click(object sender, RoutedEventArgs e)
         {
@@ -190,7 +208,7 @@ namespace WPF_GUI_Question
 
 
 
-            //CreateQuestionInit(false, true, false, "3");
+            CreateQuestionInit(false, true, false, "3");
         }
         private void Option4_Click(object sender, RoutedEventArgs e)
         {
@@ -203,7 +221,7 @@ namespace WPF_GUI_Question
 
 
 
-            //CreateQuestionInit(false, false, true, "4");
+            CreateQuestionInit(false, false, true, "4");
         }
         private void Option5_Click(object sender, RoutedEventArgs e)
         {

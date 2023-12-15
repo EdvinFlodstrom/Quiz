@@ -315,12 +315,12 @@ namespace QuizLibrary
             foreach (QuestionCard item in quiz.ListOfSortedQuestionCards())
             {
                 if (item.Question == questionCards[Convert.ToInt32(numberOfQuestion)].Question)
-                {                    
+                {
                     numberOfQuestion = quiz.ListOfSortedQuestionCards().IndexOf(item).ToString();
                     break;
                 }
             }
-            fm.RemoveOrModifyQuestion(Convert.ToInt32(numberOfQuestion), modifiedQuestion); //Fix this circus
+            fm.RemoveOrModifyQuestion(Convert.ToInt32(numberOfQuestion), modifiedQuestion);
         }     
         public string VerifyAnswer(string answer, int highestAllowedNumber = 0, List<string> mcsaOptions = null)
         {
