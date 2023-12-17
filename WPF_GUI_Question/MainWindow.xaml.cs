@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -23,18 +24,24 @@ namespace WPF_GUI_Question
         InterfaceHandler handler = new InterfaceHandler();
         List<Button> buttons = new List<Button>();
         QuestionCard quizQuestion;
-        List<List<string>> listWithDetailsOfQuestionActions;        
+        List<List<string>> listWithDetailsOfQuestionActions;
+        List<string> listWithTargetQuestionDetails;
+        List<string> mcsaOptions;
+        string question;
+        string questionAnswer;
         int indexOfCurrentQuestion = 0;
         bool isTakingQuiz = false;
         bool hasFinishedQuiz = false;
-        bool isCreatingQuestion = false; //TODO: Set ALL of the following, until //, to false/1 when question creation/modification/removal is done...
+        bool isCreatingQuestion = false;
+        string typeOfQuestionToCreate = "";
+        bool hasFinishedCreatingQuestion = false;
+        bool doneWithCreatingQuestion = false;
         bool isModifyingQuestion = false;
         bool isRemovingQuestion = false;
         bool hasCreatedQuestion = false;
-        bool hasTargetedQuestion = false;
-        string typeOfQuestionToCreate = "";
+        bool hasTargetedQuestion = false;        
         int numberOfCreatedOption = 1;
-        bool hasCreatedAnswer = false; //
+        int numberOfTargetedQuestion;
 
         public MainWindow()
         {
@@ -55,16 +62,19 @@ namespace WPF_GUI_Question
             Instructions.Text = handler.DisplayCurrentQuizResults(answer);
             PrepareNextQuestion();
         }
+        private void CreateAnswerForQuestion(string numberForQuestionToCreate)
+        {
+            typeOfQuestionToCreate = handler.ConvertQuestionTypeNumberToString(numberForQuestionToCreate);
+            EnableOrDisableOptionButtons(false, true);
+            EnableOrDisableSubmitButtonAndBox(true);
+
+            Instructions.Text = listWithDetailsOfQuestionActions[!isModifyingQuestion ? 1 : 3][typeOfQuestionToCreate == "QuestionCard" ? 0 : 1];
+        }
         private void CreateQuestionInit(bool isCreatingQuestion, bool isRemovingQuestion, bool isModifyingQuestion, string numberOfActionToPerform)
-        {            
-            this.isCreatingQuestion = isCreatingQuestion;
-            this.isModifyingQuestion = isRemovingQuestion;
-            this.isRemovingQuestion = isModifyingQuestion;
-            hasCreatedQuestion = false;
-            hasTargetedQuestion = false;
-            typeOfQuestionToCreate = "";
-            numberOfCreatedOption = 1;
-            hasCreatedAnswer = false;
+        {
+            EnableOrDisableOptionButtons(false, true);
+            ResetQuestionCreatingRelatedBooleans(isCreatingQuestion, isRemovingQuestion, isModifyingQuestion);
+            mcsaOptions = new List<string>();
 
             listWithDetailsOfQuestionActions = handler.PerformAction(numberOfActionToPerform);
 
@@ -90,8 +100,15 @@ namespace WPF_GUI_Question
                 if (clearButtonContent) item.Content = "";
             }
         }
+        private void EnableOrDisableSubmitButtonAndBox(bool setState)
+        {
+            SubmitAnswerButton.IsEnabled = setState;
+            QuestionAnswer.IsEnabled = setState;
+            QuestionAnswer.Text = "";
+        }
         private void InitialInstructions()
         {
+            ResetQuestionCreatingRelatedBooleans(false, false, false);
             InstructionsAndAnswer.IsEnabled = true;
 
             List<string> listOfInstructions = handler.LogInstructions();
@@ -108,9 +125,7 @@ namespace WPF_GUI_Question
         private void PrepareNextQuestion()
         {
             EnableOrDisableOptionButtons(false, true);
-            QuestionAnswer.IsEnabled = false;
-            QuestionAnswer.Text = "";
-            SubmitAnswerButton.IsEnabled = false;
+            EnableOrDisableSubmitButtonAndBox(false);
             ContinueButton.IsEnabled = true;
         }
         private void RunQuiz()
@@ -121,6 +136,18 @@ namespace WPF_GUI_Question
             hasFinishedQuiz = false;
             isTakingQuiz = true;
             indexOfCurrentQuestion = 0;
+        }
+        private void ResetQuestionCreatingRelatedBooleans(bool isCreatingQuestion, bool isRemovingQuestion, bool isModifyingQuestion)
+        {
+            this.isCreatingQuestion = isCreatingQuestion;
+            this.isRemovingQuestion = isRemovingQuestion;
+            this.isModifyingQuestion = isModifyingQuestion;
+            hasFinishedCreatingQuestion = false;
+            hasCreatedQuestion = false;
+            hasTargetedQuestion = false;
+            typeOfQuestionToCreate = "";
+            numberOfCreatedOption = 1;
+            doneWithCreatingQuestion = false;
         }
         private void Continue_Click(object sender, RoutedEventArgs e)
         {
@@ -146,13 +173,16 @@ namespace WPF_GUI_Question
                         EnableOrDisableOptionButtons(true, false);
                     }
                     else
-                    {
-                        QuestionAnswer.IsEnabled = true;
-                        SubmitAnswerButton.IsEnabled = true;
+                    {                        
+                        EnableOrDisableSubmitButtonAndBox(true);
                     }
                     indexOfCurrentQuestion++;
                     ContinueButton.IsEnabled = false;
                 }
+            }
+            else if (hasFinishedCreatingQuestion)
+            {
+                InitialInstructions();
             }
             else if (!isTakingQuiz && hasFinishedQuiz)
             {
@@ -161,14 +191,140 @@ namespace WPF_GUI_Question
             }
             else if (isCreatingQuestion)
             {
-                Instructions.Text = listWithDetailsOfQuestionActions[!isModifyingQuestion ? 0 : 2][0]; //Check this.
+                Instructions.Text = listWithDetailsOfQuestionActions[!isModifyingQuestion ? 0 : 2][0]; //"What is the question going to be?", when it's time to create question (after modifying or not).
+                EnableOrDisableSubmitButtonAndBox(true);
+                ContinueButton.IsEnabled = false;
+            }
+            else if ((isRemovingQuestion || isModifyingQuestion) && !hasTargetedQuestion)
+            {
+                listWithTargetQuestionDetails = handler.GetListWithTargetQuestionDetails();
+                Instructions.Text = listWithTargetQuestionDetails[0];
+                foreach (string item in listWithDetailsOfQuestionActions[1])
+                {
+                    ListOfAllQuestions.Text += item + Environment.NewLine;
+                }
+                ListOfAllQuestions.Text += listWithTargetQuestionDetails[1];
+                ContinueButton.IsEnabled = false;                
+                EnableOrDisableSubmitButtonAndBox(true);
+            }
+            else
+            {
+                InitialInstructions();
             }
         }
         private void SubmitAnswer_Click(object sender, RoutedEventArgs e)
         {
             if (QuestionAnswer.Text != "")
             {
-                CheckAnswerAndPrepareNextAction(QuestionAnswer.Text);
+                if (isTakingQuiz)
+                {
+                    CheckAnswerAndPrepareNextAction(QuestionAnswer.Text);
+                }
+                else if (!isCreatingQuestion)
+                {
+                    numberOfTargetedQuestion = Convert.ToInt32(QuestionAnswer.Text);
+                    if (numberOfTargetedQuestion < 1 || numberOfTargetedQuestion > handler.TotalNumberOfQuestions)
+                    {
+                        return;
+                    }
+                    ListOfAllQuestions.Text = "";
+                    hasTargetedQuestion = true;                    
+                    if (isRemovingQuestion)
+                    {
+                        handler.RemoveOrModifyQuestion(QuestionAnswer.Text);
+                        Instructions.Text = "Question has been removed successfully.";
+                    }
+                    else
+                    {
+                        Instructions.Text = "Now, please create the question that will replace the previous one";
+                        isCreatingQuestion = true;
+                    }                    
+                    EnableOrDisableSubmitButtonAndBox(false);
+                    ContinueButton.IsEnabled = true;
+                }
+                else if (!hasCreatedQuestion)
+                {
+                    question = QuestionAnswer.Text;
+                    EnableOrDisableSubmitButtonAndBox(false);
+                    for (int i = 2; i < listWithDetailsOfQuestionActions[!isModifyingQuestion ? 0 : 2].Count; i++)
+                    {
+                        buttons[i-2].Content = listWithDetailsOfQuestionActions[!isModifyingQuestion ? 0 : 2][i];
+                        buttons[i-2].IsEnabled = true;
+                    }
+                    hasCreatedQuestion = true;
+
+                    Instructions.Text = listWithDetailsOfQuestionActions[!isModifyingQuestion ? 0 : 2][1];
+                }
+                else if (typeOfQuestionToCreate == "QuestionCard" || typeOfQuestionToCreate == "MCSACard")
+                {
+                    if (typeOfQuestionToCreate == "QuestionCard")
+                    {
+                        questionAnswer = QuestionAnswer.Text;
+                        doneWithCreatingQuestion = true;
+                    }
+                    else
+                    {
+
+                        if (numberOfCreatedOption < 6)
+                        {
+                            questionAnswer = handler.VerifyAnswer(QuestionAnswer.Text, 0, mcsaOptions);
+                            if (questionAnswer == handler.AnswerIsNullString)
+                            {
+                                Instructions.Text = questionAnswer;
+                                return;
+                            }
+                            else
+                            {
+                                mcsaOptions.Add(QuestionAnswer.Text);
+                                numberOfCreatedOption++;
+                            }                          
+                        }
+
+                        questionAnswer = QuestionAnswer.Text;
+                        QuestionAnswer.Clear();
+
+                        if (numberOfCreatedOption < 6)
+                        {                            
+                            Instructions.Text = "Enter your answer for option " + numberOfCreatedOption;
+                            return;
+                        }
+                        else if (!doneWithCreatingQuestion)
+                        {
+                            Instructions.Text = "Choose the correct option. " + handler.GetAnswerFormat(numberOfCreatedOption-1);
+                            doneWithCreatingQuestion = true;
+                            return;
+                        }
+                        
+                        questionAnswer = handler.VerifyAnswer(questionAnswer, numberOfCreatedOption - 1);
+                        if (questionAnswer == handler.AnswerIsNullString)
+                        {
+                            Instructions.Text = questionAnswer + handler.GetAnswerFormat(numberOfCreatedOption-1);
+                            return;
+                        }                       
+                    }
+
+                    if (doneWithCreatingQuestion)
+                    {
+                        EnableOrDisableSubmitButtonAndBox(false);
+
+                        string stringOfQuestionOrReturnMessage = handler.CreateQuestion(
+                                    question, typeOfQuestionToCreate, questionAnswer,
+                                    mcsaOptions, isModifyingQuestion);
+
+                        if (isModifyingQuestion)
+                        {
+                            handler.RemoveOrModifyQuestion(numberOfTargetedQuestion.ToString(), stringOfQuestionOrReturnMessage);
+                            Instructions.Text = "Question was modified successfully.";
+                        }
+                        else
+                        {
+                            Instructions.Text = "Question was added successfully.";
+                        }
+
+                        hasFinishedCreatingQuestion = true;
+                        ContinueButton.IsEnabled = true;
+                    }
+                }               
             }
         }
         private void Option1_Click(object sender, RoutedEventArgs e)
@@ -177,8 +333,15 @@ namespace WPF_GUI_Question
             {
                 CheckAnswerAndPrepareNextAction("1");
                 return;
-            }            
-            RunQuiz();
+            }
+            else if (isCreatingQuestion)
+            {
+                CreateAnswerForQuestion("1");
+            }
+            else
+            {
+                RunQuiz();
+            }
         }
         private void Option2_Click(object sender, RoutedEventArgs e)
         {
@@ -187,16 +350,14 @@ namespace WPF_GUI_Question
                 CheckAnswerAndPrepareNextAction("2");
                 return;
             }
-            else if (isCreatingQuestion && !hasTargetedQuestion)
+            else if (isCreatingQuestion && hasTargetedQuestion)
             {
-
+                CreateAnswerForQuestion("2");
             }
-
-
-
-
-            //If user wants to create question.
-            CreateQuestionInit(true, false, false, "2");
+            else
+            {
+                CreateQuestionInit(true, false, false, "2");
+            }
         }
         private void Option3_Click(object sender, RoutedEventArgs e)
         {
@@ -205,10 +366,10 @@ namespace WPF_GUI_Question
                 CheckAnswerAndPrepareNextAction("3");
                 return;
             }
-
-
-
-            CreateQuestionInit(false, true, false, "3");
+            else
+            {
+                CreateQuestionInit(false, true, false, "3");
+            }            
         }
         private void Option4_Click(object sender, RoutedEventArgs e)
         {
@@ -217,11 +378,10 @@ namespace WPF_GUI_Question
                 CheckAnswerAndPrepareNextAction("4");
                 return;
             }
-
-
-
-
-            CreateQuestionInit(false, false, true, "4");
+            else
+            {
+                CreateQuestionInit(false, false, true, "4");
+            }            
         }
         private void Option5_Click(object sender, RoutedEventArgs e)
         {
@@ -230,7 +390,10 @@ namespace WPF_GUI_Question
                 CheckAnswerAndPrepareNextAction("5");
                 return;
             }
-            Application.Current.Shutdown();
+            else
+            {
+                Application.Current.Shutdown();
+            }
         }
     }
 }

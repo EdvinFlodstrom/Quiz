@@ -34,7 +34,8 @@
         </StackPanel>
 
         <StackPanel Name="InstructionsAndAnswer" IsEnabled="false">
-            <TextBlock FontSize="20" Name="Instructions"></TextBlock>
+            <TextBlock FontSize="25" Name="Instructions"></TextBlock>
+            <TextBlock FontSize="18" Name="ListOfAllQuestions"></TextBlock>
             <Button Content="" Name="Option1Button" Click="Option1_Click" IsEnabled="False"></Button>
             <Button Content="" Name="Option2Button" Click="Option2_Click" IsEnabled="False"></Button>
             <Button Content="" Name="Option3Button" Click="Option3_Click" IsEnabled="False"></Button>
@@ -50,8 +51,6 @@
         <StackPanel>
             <Button Content="Continue" Name="ContinueButton" Click="Continue_Click" IsDefault="True" IsEnabled="False"></Button>
         </StackPanel>
-
-
 
     </StackPanel>
 </Window>

@@ -96,23 +96,6 @@ namespace QuizLibrary
             {
                 return "MCSACard";
             }
-        }
-        public List<string> CreateQuestionAnswer()
-        {
-            return new List<string> { "What are the words that the answer has to include for it to be correct?",
-            "What are the five options for the question going to be?" };
-        }        
-        public List<string> CreateQuestionInit()
-        {
-            List<string> listWithDetails = new List<string> {
-                "What is the question going to be?",
-                "What type of question would you like to add?" + 
-                Environment.NewLine +
-                "1. Regular question." + 
-                Environment.NewLine +
-                "2. Multiple Choice Single Answer question." };
-          
-            return listWithDetails;
         }        
         public string CreateQuestion(string question, string questionType,
             string questionAnswer, List<string> questionMcsaOptions, bool modifyAQuestion = false)
@@ -132,6 +115,21 @@ namespace QuizLibrary
             {
                 return response;
             }
+        }
+        public List<string> CreateQuestionAnswer()
+        {
+            return new List<string> { "What are the words that the answer has to include for it to be correct?",
+            "What are the five options for the question going to be?" };
+        }
+        public List<string> CreateQuestionInit()
+        {
+            List<string> listWithDetails = new List<string> {
+                "What is the question going to be?",
+                "What type of question would you like to add?",
+                "1. Regular question.",
+                "2. Multiple Choice Single Answer question." };
+
+            return listWithDetails;
         }
         public string DisplayCurrentQuizResults(string answer)
         {
@@ -211,7 +209,7 @@ namespace QuizLibrary
         public List<string> GetListWithTargetQuestionDetails()
         {
             return new List<string> { "These are the questions currently in the quiz:", "Choose the number of the question you want to target in the quiz." };
-        }      
+        }
         public QuestionCard GetQuestion(int indexOfQuestion)
         {
             return questionCards[indexOfQuestion];
@@ -308,7 +306,7 @@ namespace QuizLibrary
         }
         public void RemoveOrModifyQuestion(string numberOfQuestion, string modifiedQuestion = "")
         {
-            int intNumberOfQuestion = Convert.ToInt16(numberOfQuestion);
+            int intNumberOfQuestion = Convert.ToInt32(numberOfQuestion);
             intNumberOfQuestion--;
             numberOfQuestion = intNumberOfQuestion.ToString();
 

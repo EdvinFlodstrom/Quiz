@@ -479,3 +479,17 @@ foreach (QuestionCard item in quiz.ListOfSortedQuestionCards())
     }
 ```
 Not too complicated, but it works. Back to the GUI now.
+
+2023-12-17
+------------
+#### WPF Filhantering
+Since last time, I've created a React projcet with a frontend client and backend server. I haven't done anything
+in the actual project, but I've been learning some React from a classmate. Anyhow, I've also finished the GUI now. 
+From what i can tell, all the options work just fine. I can take the quiz, add a question, remove a question,
+modify a question and close the application. All of these appear to work before and after each option has been tested.
+There are probably some bugs hidden in the depths somewhere, but it looks to be working anyway. I mostly have small
+methods that set booleans to false or something of the like, but there are also two button click methods that are 
+kind of massive. I would've preferred to keep it more concise, but I couldn't find many better solutions at present 
+time. It was troublesome, to say the least, to deal with all possible scenarios that could take place when someone
+presses buttons in a certain order. But, as I said earlier, it looks like it's working, so I'll move on to the React
+frontend and API backend now.

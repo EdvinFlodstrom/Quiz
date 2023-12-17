@@ -134,17 +134,21 @@ namespace FrågesportNetFramework
                             foreach (string subItem in item)
                             {
                                 highestAllowedNumber = 0;
-                                if (item.IndexOf(subItem) == 1)
+                                Console.WriteLine(subItem);
+                                if (item.IndexOf(subItem) >= 1)
                                 {
                                     highestAllowedNumber = 2;
+                                    continue;
                                 }
-                                question = readAnswer;
-                                Console.WriteLine(subItem);
+                                question = readAnswer;                                
                                 readAnswer = DoWhileMethod(highestAllowedNumber);
                                 questionType = readAnswer;
                                 Console.WriteLine();
                             }
+                            readAnswer = DoWhileMethod(highestAllowedNumber);
+                            questionType = readAnswer;                            
                             questionType = handler.ConvertQuestionTypeNumberToString(questionType);
+                            Console.WriteLine();
                         }
                         else
                         {
