@@ -493,3 +493,18 @@ kind of massive. I would've preferred to keep it more concise, but I couldn't fi
 time. It was troublesome, to say the least, to deal with all possible scenarios that could take place when someone
 presses buttons in a certain order. But, as I said earlier, it looks like it's working, so I'll move on to the React
 frontend and API backend now.
+
+2023-12-19
+---------------
+#### WPF Filhantering
+I'd already created a frontend and a backend project using a template in Visual Studio, so here I thought testing the
+React app would be easy. It wasn't. I'm unsure of whether I had a bit of tunnel vision or if the template created 
+something that differed slightly from what I required, but it did *not* go well. I ran into a lot of errors, debugged,
+and when I finally got the project running, it was not quite what I wanted. So I restarted, but by creating only a 
+React application similar to the React documentation. I then copied that test project into this one, and it works. 
+I can't see it in Visual Studio, which I'm almost certain is because the project contains no .csproj file and so the
+.sln has no reference to it, but that's fine. I'm developing the React frontend using VSCodium anyway, and using Git
+through PowerShell provides more practice than doing it through Visual Studio. So the project should now be ready for
+development. I also created an interface class for FileManager and the new DatabaseManager, so InterfaceHandler
+should now be independent of the manager. This means that, in theory, I should not have do adjust InterfaceHandler
+at all when changing between reading from/writing to a file or a database.

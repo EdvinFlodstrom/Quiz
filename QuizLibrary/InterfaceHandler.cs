@@ -5,9 +5,8 @@ namespace QuizLibrary
 {
     public class InterfaceHandler
     {
-        //TODO: Remove ALL strings related to the question. ONLY properties of the instances of the class will be used!
-        FileManager fm = new FileManager();
-        Quiz quiz = new Quiz();
+        IManager manager;
+        Quiz quiz;
         List<QuestionCard> questionCards;
         private int correctAnswers = 0;
         private int totalAnswers = 0;
@@ -29,7 +28,11 @@ namespace QuizLibrary
                 return totalNumberOfquestions;
             }
         }
-        public InterfaceHandler() { }
+        public InterfaceHandler(IManager manager)
+        {
+            this.manager = manager;
+            quiz = new Quiz(manager);
+        }
         public string AddQuestionToFileOrReturnQuestionAsString(string question, string questionType,
             string questionAnswer, List<string> questionMcsaOptions, bool modifyAQuestion)
         {
@@ -53,7 +56,7 @@ namespace QuizLibrary
 
             if (!modifyAQuestion)
             {
-                if (!fm.AddQuestionToFile(combinedString))
+                if (!manager.AddQuestion(combinedString))
                 {
                     return "";
                 }
@@ -318,9 +321,9 @@ namespace QuizLibrary
                     break;
                 }
             }
-            fm.RemoveOrModifyQuestion(Convert.ToInt32(numberOfQuestion), modifiedQuestion);
+            manager.RemoveOrModifyQuestion(Convert.ToInt32(numberOfQuestion), modifiedQuestion);
         }     
-        public string VerifyAnswer(string answer, int highestAllowedNumber = 0, List<string> mcsaOptions = null)
+        public string VerifyAnswer(string answer, int highestAllowedNumber = 0, List<string>? mcsaOptions = null)
         {
             answer = DoWhileFunction(answer, mcsaOptions, highestAllowedNumber);
             if (answer == null)

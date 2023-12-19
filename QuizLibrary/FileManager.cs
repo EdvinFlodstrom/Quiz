@@ -1,6 +1,6 @@
 ﻿namespace QuizLibrary
 {
-    public class FileManager
+    public class FileManager : IManager
     {
         private string pathAndFileName;
         public FileManager()
@@ -9,9 +9,9 @@
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             pathAndFileName = Path.Combine(docPath, "quiz_questions.txt");
     }
-        public bool AddQuestionToFile(string questionCardString)
+        public bool AddQuestion(string questionCardString)
         {
-            foreach (QuestionCard item in ReadFile())
+            foreach (QuestionCard item in Read())
             {
                 if (questionCardString.ToLower().Contains(item.Question.ToLower()))
                 {
@@ -24,7 +24,7 @@
             }            
             return true;
         }
-        public List<QuestionCard> ReadFile()
+        public List<QuestionCard> Read()
         {
             using (var sr = new StreamReader(pathAndFileName))
             {

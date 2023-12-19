@@ -19,7 +19,7 @@
                 return mcsaOptions;
             }
         }
-        public QuestionCard(string question, string correctAnswer, List<string> mcsaOptions = null)
+        public QuestionCard(string question, string correctAnswer, List<string>? mcsaOptions = null)
         {
             this.question = question;
             this.correctAnswer = correctAnswer;

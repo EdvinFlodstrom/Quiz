@@ -21,7 +21,7 @@ namespace WPF_GUI_Question
     /// </summary>  
     public partial class MainWindow : Window
     {        
-        InterfaceHandler handler = new InterfaceHandler();
+        InterfaceHandler handler = new InterfaceHandler(new FileManager());
         List<Button> buttons = new List<Button>();
         QuestionCard quizQuestion;
         List<List<string>> listWithDetailsOfQuestionActions;

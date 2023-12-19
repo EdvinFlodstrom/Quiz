@@ -7,11 +7,11 @@ namespace FrågesportNetFramework
 {
     public class UserInterface
     {
-        InterfaceHandler handler = new InterfaceHandler();
+        InterfaceHandler handler = new InterfaceHandler(new FileManager());
         public UserInterface() { }
         private string DoWhileMethod(int highestAllowedNumber)
         {
-            string answer = "";
+            string? answer = "";
             do
             {
                 if (answer == handler.AnswerIsNullString)
@@ -27,7 +27,7 @@ namespace FrågesportNetFramework
         }
         public void Run()
         {
-            string answer;
+            string? answer;
             string ifEmptyBreakLook = "";
 
             do
@@ -164,7 +164,7 @@ namespace FrågesportNetFramework
 
                             for (int i = 1; i < 6; i++)
                             {
-                                string optionOrFullAnswer = "";
+                                string? optionOrFullAnswer = "";
                                 do
                                 {
                                     if (optionOrFullAnswer == handler.AnswerIsNullString)

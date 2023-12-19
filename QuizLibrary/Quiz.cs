@@ -2,11 +2,15 @@
 {
     internal class Quiz
     {
+        IManager manager;
         private Deck deck;
-        public Quiz() { }
+        public Quiz(IManager manager)
+        {
+            this.manager = manager;
+        }
         public List<QuestionCard> Run()
         {
-            deck = new Deck();
+            deck = new Deck(manager);
 
             int deckLength = deck.Cards.Count;
 

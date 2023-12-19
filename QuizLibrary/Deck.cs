@@ -5,7 +5,6 @@
         private Random rnd = new Random();
         private List<QuestionCard> cards = new List<QuestionCard>();
         private List<QuestionCard> sortedCards = new List<QuestionCard>();
-        private FileManager fm = new FileManager();
         public List<QuestionCard> Cards
         {
             get
@@ -20,10 +19,10 @@
                 return sortedCards;
             }
         }
-        public Deck()
-        {
-            cards = fm.ReadFile();
-            sortedCards = fm.ReadFile();
+        public Deck(IManager manager)
+        {            
+            cards = manager.Read();
+            sortedCards = manager.Read();
         }
         public QuestionCard Draw()
         {
