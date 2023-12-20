@@ -1,6 +1,6 @@
-namespace Web_App.Server
+namespace Web_App.Server.Models
 {
-    public class WeatherForecast
+    public class Quiz
     {
         public DateOnly Date { get; set; }
 

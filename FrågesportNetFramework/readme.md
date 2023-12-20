@@ -508,3 +508,24 @@ through PowerShell provides more practice than doing it through Visual Studio. S
 development. I also created an interface class for FileManager and the new DatabaseManager, so InterfaceHandler
 should now be independent of the manager. This means that, in theory, I should not have do adjust InterfaceHandler
 at all when changing between reading from/writing to a file or a database.
+
+2023-12-20
+---------------
+#### WPF Filhantering
+Come to think of it, perhaps I should stop stating that I'm still working with "file management". It probably doesn't
+matter too much anyway though, since I don't think anyone will read this wall of text that is my journal for this project.
+Anyway I've started the API a couple of times now, and I've finally accomplished my first goal: getting rid of Swagger.
+Not that it's bad, but I prefer Postman (also it took me like 5 minutes to stop Swagger and some SPA thing to launch, 
+it was no big task). It gives cleaner and clearer results and is easier to use, I think. Time to start adjusting
+this template API to make it more fit for delivering the data I need, hm.
+
+A few hours later, I've yet to start adjusting this template API to make it more fit for delivering the data I need, hm.
+Instead, I downloaded SSMS, SQL Express and set up a database with fitting tables. It was a little troublesome, but I
+think I've got it working now. Before starting work with the API, I should probably insert the initial questions though.
+
+Looks like the database is ready to go, I think. I've added all starter questions to tables, where there is one table
+containing all questions, one table for type QuestionCard questions, and one table for type MCSACard questions.
+
+I've been working for a bit with the API, and it's been going OK. I had to change some files, rename some files, move 
+some files and create some files, but I've got the template properly set up now, I think. When starting the API, I can
+get a 200 OK message by sending an HTTP GET request to "https://localhost:7140/api/quiz" with Postman. So far, so good.
