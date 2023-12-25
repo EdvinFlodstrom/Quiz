@@ -1,6 +1,6 @@
 @Web_App.Server_HostAddress = http://localhost:5240
 
-GET {{Web_App.Server_HostAddress}}/weatherforecast/
+GET {{Web_App.Server_HostAddress}}/api/quiz/
 Accept: application/json
 
 ###

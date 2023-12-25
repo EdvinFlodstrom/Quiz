@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <InvariantGlobalization>true</InvariantGlobalization>
+    <InvariantGlobalization>false</InvariantGlobalization>
     <SpaRoot>..\web_app.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:5173</SpaProxyServerUrl>
@@ -30,6 +30,21 @@
     <ProjectReference Include="..\web_app.client\web_app.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -1,15 +1,31 @@
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using Web_App.Server.Data;
+
 namespace Web_App.Server
 {
     public class Startup
     {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
+
+            services.AddDbContext<QuizContext>(options =>
+            {
+                options.UseSqlServer(Environment.GetEnvironmentVariable("QuizConnection"));
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
+        {           
             app.UseDefaultFiles();
             app.UseStaticFiles();
 

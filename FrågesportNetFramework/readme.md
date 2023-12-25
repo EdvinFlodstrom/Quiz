@@ -529,3 +529,107 @@ containing all questions, one table for type QuestionCard questions, and one tab
 I've been working for a bit with the API, and it's been going OK. I had to change some files, rename some files, move 
 some files and create some files, but I've got the template properly set up now, I think. When starting the API, I can
 get a 200 OK message by sending an HTTP GET request to "https://localhost:7140/api/quiz" with Postman. So far, so good.
+
+2023-12-25
+-----------
+I've continued working on the API, as mentioned above. I've added models, a context, modified the controller and such.
+I struggled *a lot* with a specific error telling me something about not changing invariant globalization or 
+something. I eventually fixed it by changing `<InvariantGlobalization>true</InvariantGlobalization>` to
+`<InvariantGlobalization>false</InvariantGlobalization>` in Web_App.Server.csproj, but it took me quite a while to find
+that. And now I'm instead trying to fix this error message:
+```
+Internal Server Error: Microsoft.Data.SqlClient.SqlException (0x80131904): A connection was successfully established with the server, but then an error occurred during the login process. (provider: SSL Provider, error: 0 - Certifikatkedjan utfärdades av en icke betrodd certifikatutfärdare.)
+```
+
+It's taken me far longer than I would've liked, and I've yet to get it fixed. Did I mention all of this is just to
+connect to the SQL Server?
+
+It looks like the connection is working now? I don't even feel like I accomplished anything; it took me probably around
+3-4 hours just to connect to the SQL Server through my API. If not more, I don't really know. I was doing this for 
+at least an hour and a half yesterday as well, but at least this part's over at last.
+
+Hours upon hours. What little progress I make is hardly relevant. I can get all the questions, their ID, and their type
+from the Questions table in the Quiz database, but that's it. No matter how much I try, or what I try, I can't seem
+to figure out how to access the other tables (QuestionCard and MCSACard. These contain the correct answer and potential
+options). A query such as this works: 
+```
+var allQuestions = quizContext.Questions
+    .Select(q => new
+    {
+        q.QuestionId,
+        q.QuestionText,
+        q.QuestionType
+    })
+    .ToList();
+```
+...but this doesnt: `var sampleQuestion = quizContext.Questions.ToList();`. Not even this does: 
+`var sampleQuestion = quizContext.QuestionCards.ToList();`. Take the latter, for example. The exact reason why it 
+doesn't work is because the query searches for properties found in the QuestionCard model, RequiredWords, in 
+the Questions table. I can't figure out how to search for the property in the QuestionCard table instead. I've
+searched the web for solutions, asked ChatGPT, but all to no avail. 
+
+Looks like everything's working now, at last. Seems I had a tad too much tunnel vision, trying a little too 
+rigorously to follow ChatGPT's advice. It adviced me to use a discriminator column and such for structure,
+looking a bit like this:
+```
+    modelBuilder.Entity<Question>()
+        .HasDiscriminator<string>("QuestionType")  // Discriminator column for TPH
+        .HasValue<QuestionCard>("QuestionCard")    // Discriminator value for QuestionCard
+        .HasValue<MCSACard>("MCSACard");           // Discriminator value for MCSACard
+
+        // Additional configuration for QuestionCard
+    modelBuilder.Entity<QuestionCard>()
+        .HasBaseType<Question>()
+        .HasKey(qc => qc.QuestionId);
+
+    // Additional configuration for MCSACard
+    modelBuilder.Entity<MCSACard>()
+        .HasBaseType<Question>()
+        .HasKey(mc => mc.QuestionId);
+```
+However, I could not get this to work no matter how much I tried. Eventually, I gave up trying so strictly to 
+follow ChatGPT's instructions. Instead, I wrote this myself:
+```
+    modelBuilder.Entity<Question>()
+        .HasKey(q => q.QuestionId);
+
+    modelBuilder.Entity<Question>()
+        .ToTable("Questions");
+
+    //Configurations for QuestionCard
+    modelBuilder.Entity<QuestionCard>()
+        .ToTable("QuestionCard");
+
+    //Configurations for MCSACard
+    modelBuilder.Entity<MCSACard>()
+        .ToTable("MCSACard");
+```
+And it worked perfectly, from what I can tell. Maybe it's poorly written, maybe not. I don't really know, but I do
+know that it works. I can get all the questions with the following query: `var q = quizContext.Questions.ToList();`.
+I can also get only QuestionCard type questions by changing `Questions` to `QuestionCards`, or only MCSA type questions
+by changing `Questions` to `MCSACards`. At any rate, this is what one of the questions looks like as a JSON object
+when requesting all questions with `var q = quizContext.Questions.ToList();`:
+```
+{
+    "questionId": 1,
+    "questionText": "In chess, how many pawns do each side start with?",
+    "questionType": "MCSACard"
+}
+```
+Now that this is all fixed, I should be able to tailor it to meet the specific
+needs of the frontend part of this application. Actually come to think of it, I'll have to fix the service class and
+make sure QuizController uses Service.cs for interacting with the database. By the way, adding 
+`.LogTo(Console.WriteLine, LogLevel.Information)` to 
+`options.UseSqlServer(Environment.GetEnvironmentVariable("QuizConnection"))` in Startup.cs helped with finding 
+problems and debugging. (Also, that environment variable was criminally annoying to fix.)
+
+This has all been a lesson on many levels, but I'm mainly just glad to have this part finished.
+I'd rather not spend next Christmas trying not to lose my mind over APIs and SQL servers/databases/tables. 
+I need rest now, enough REST.
+* https://learn.microsoft.com/en-us/sql/relational-databases/databases/create-a-database?view=sql-server-ver16
+* https://www.youtube.com/watch?v=PPFyoXA_FC0
+* https://www.microsoft.com/en-us/sql-server/sql-server-downloads
+* https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16
+* https://stackoverflow.com/questions/76394279/scaffold-dbcontext-culturenotfoundexception-only-the-invariant-culture-is-sup
+* https://stackoverflow.com/questions/17650482/instance-failure-error-while-connection-string-is-correct
+* https://stackoverflow.com/questions/70399243/how-to-fix-sql-server-2019-connection-error-due-to-certificate-issue

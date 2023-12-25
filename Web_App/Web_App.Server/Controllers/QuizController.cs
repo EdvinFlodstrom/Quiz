@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Web_App.Server.Data;
 using Web_App.Server.Models;
 
 namespace Web_App.Server.Controllers
@@ -7,24 +9,26 @@ namespace Web_App.Server.Controllers
     [Route("api/[controller]")]
     public class QuizController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+        private readonly QuizContext quizContext;
 
-        private readonly ILogger<QuizController> _logger;
-
-        public QuizController(ILogger<QuizController> logger)
+        public QuizController(QuizContext quizContext)
         {
-            _logger = logger;
+            this.quizContext = quizContext;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
+        [HttpGet]
         public IActionResult Get()
         {
-            
+            try
+            {                
+                var q = quizContext.Questions.ToList();
 
-            return Ok();
+                return Ok(q);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex);
+            }
         }
     }
 }
