@@ -633,3 +633,20 @@ I need rest now, enough REST.
 * https://stackoverflow.com/questions/76394279/scaffold-dbcontext-culturenotfoundexception-only-the-invariant-culture-is-sup
 * https://stackoverflow.com/questions/17650482/instance-failure-error-while-connection-string-is-correct
 * https://stackoverflow.com/questions/70399243/how-to-fix-sql-server-2019-connection-error-due-to-certificate-issue
+
+2023-12-26
+--------------
+As explained above, the API is working, but I've now gotten very unsure of how to continue. I obviously want to reuse
+the code I wrote in QuizLibrary for efficiency, but I'm not sure how to incorporate it into the API. Because of the
+way the API is reading from the SQL database, I don't think the methods would look the same in DatabaseManager 
+(or QuizContext, which is the class that is currently interacting with the database) as FileManager. Perhaps this
+is more a question of structure, what part does the API play in this project? I suspect that if I don't set this in 
+stone before proceeding, I'm probably shooting myself in the foot again. And then I won't have any other of my feet to 
+shoot. So I'd rather not do that. So I'll document some of my thoughts now, to see if that'll get my anywhere.
+
+So, for starters, I want this project to be efficient. It can save me a lot of time in the future if I do it right 
+from the start, which is something I did *not* do the first time around when initially creating this project. So, 
+InterfaceHandler has to be used for basically everything. Which means that the React application should use the API to
+interact with InterfaceHandler, unless I am completely mistaken. Which means that I am very unsure of how I should 
+continue, so I might just have to wait until school starts again to ask my teacher. I don't want to do something
+stupid and suffer through salvaging the whole thing like I did with the GUI and InterfaceHandler.

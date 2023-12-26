@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Web_App.Server.Data;
+using Web_App.Server.Services;
 using Web_App.Server.Models;
 
 namespace Web_App.Server.Controllers
@@ -9,21 +9,35 @@ namespace Web_App.Server.Controllers
     [Route("api/[controller]")]
     public class QuizController : ControllerBase
     {
-        private readonly QuizContext quizContext;
+        private readonly QuizService quizService;
 
-        public QuizController(QuizContext quizContext)
+        public QuizController(QuizService quizService)
         {
-            this.quizContext = quizContext;
+            this.quizService = quizService;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public ActionResult<List<Question>>? Get()
         {
             try
-            {                
-                var q = quizContext.Questions.ToList();
+            {
+                List<Question>? questions = quizService.GetAllQuestions();
 
-                return Ok(q);
+                return questions == null ? NotFound() : Ok(questions);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex);
+            }
+        }
+        [HttpGet("{id}")]
+        public ActionResult<Question>? GetById(int id)
+        {
+            try
+            {
+                Question? question = quizService.GetQuestionById(id);
+
+                return question == null ? NotFound() : Ok(question);
             }
             catch (Exception ex)
             {

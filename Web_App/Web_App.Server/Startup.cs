@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using Web_App.Server.Data;
+using Web_App.Server.Services;
 
 namespace Web_App.Server
 {
@@ -17,6 +18,8 @@ namespace Web_App.Server
         {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
+
+            services.AddScoped<QuizService>();
 
             services.AddDbContext<QuizContext>(options =>
             {
