@@ -1,13 +1,18 @@
 ﻿using System.Globalization;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
 
 namespace QuizLibrary
 {
     public class InterfaceHandler
     {
-        IManager manager;
-        Quiz quiz;
-        List<QuestionCard> questionCards;
+        private readonly HttpClient httpClient;
+
+        private IManager manager;
+        private Quiz quiz;
+        private List<QuestionCard> questionCards;
         private int correctAnswers = 0;
         private int totalAnswers = 0;
         private int deckLength = 0;
@@ -28,10 +33,9 @@ namespace QuizLibrary
                 return totalNumberOfquestions;
             }
         }
-        public InterfaceHandler(IManager manager)
+        public InterfaceHandler(HttpClient httpClient)
         {
-            this.manager = manager;
-            quiz = new Quiz(manager);
+            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
         public string AddQuestionToFileOrReturnQuestionAsString(string question, string questionType,
             string questionAnswer, List<string> questionMcsaOptions, bool modifyAQuestion)
@@ -242,17 +246,32 @@ namespace QuizLibrary
 
             return resultString;
         }
-        public List<string> LogInstructions()
+        public async Task<List<string>> LogInstructions()
         {
-            return new List<string>
+            string apiUrl = "https://localhost:7140/api/quiz/instructions";
+
+            using (httpClient)
             {
-                "Welcome to the quiz UI! Your options are as follow:",
-                "1. Take the quiz.",
-                "2. Add a question to the quiz.",
-                "3. Remove a question from the quiz.",
-                "4. Modify a question in the quiz.",
-                "5. Close the application."
-            };
+                try
+                {
+                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return await response.Content.ReadFromJsonAsync<List<string>>();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode}");
+                        return new List<string>();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception: {ex.Message}");
+                    return new List<string>();
+                }
+            }
         }
         public List<List<string>> PerformAction(string answer)
         {
@@ -301,6 +320,7 @@ namespace QuizLibrary
         }
         private void PrepareQuiz()
         {
+            //TODO fix quiz
             questionCards = quiz.Run();
 
             correctAnswers = 0;

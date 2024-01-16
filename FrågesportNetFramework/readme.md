@@ -625,7 +625,7 @@ problems and debugging. (Also, that environment variable was criminally annoying
 
 This has all been a lesson on many levels, but I'm mainly just glad to have this part finished.
 I'd rather not spend next Christmas trying not to lose my mind over APIs and SQL servers/databases/tables. 
-I need rest now, enough REST.
+I need some rest now, enough REST.
 * https://learn.microsoft.com/en-us/sql/relational-databases/databases/create-a-database?view=sql-server-ver16
 * https://www.youtube.com/watch?v=PPFyoXA_FC0
 * https://www.microsoft.com/en-us/sql-server/sql-server-downloads
@@ -650,3 +650,97 @@ InterfaceHandler has to be used for basically everything. Which means that the R
 interact with InterfaceHandler, unless I am completely mistaken. Which means that I am very unsure of how I should 
 continue, so I might just have to wait until school starts again to ask my teacher. I don't want to do something
 stupid and suffer through salvaging the whole thing like I did with the GUI and InterfaceHandler.
+
+2024-01-09
+-----------
+The React project should communicate with the API using links such as 'https://localhost:7140/api/quiz/1', and the API
+communicates with InterfaceHandler to return a bunch of stuff. The path is, as of right now, clear. I've run into an
+interesting problrm, however. Currently, if I request all the questions, I get them all with a questionID, the type of
+question (QuestionCard or MCSACard) and the question itself. This works well, but if I try to get a single question, 
+for example with the code `var question = quizContext.Questions.FirstOrDefault(q => q.QuestionId == id);`, I get the
+questionID, questionType, questionText and requiredWords (this is for QuestionCard only. MCSACard gives similar 
+results though). The interesting part is that I'm querying the Questions table, and the results returned are from BOTH
+the Questions table and the QuestionCard table. This doesn't have to be an issue, though. I can probably turn it around
+and use it to my advantage, I'll just need to tinker with it for a bit.
+
+I'm a little unsure of how to fix a problem I'm currently stuck at. I need to prevent the correct answer from being 
+returned as I explained above, but currently I can not access the properties of MCSACard or QuestionCard.
+
+Problem fixed.
+
+```
+var question = quizContext.QuestionCards.FirstOrDefault(q => q.QuestionId == id) as QuestionModel
+    ?? quizContext.MCSACards.FirstOrDefault(q => q.QuestionId == id);
+
+if (question is QuestionCardModel questionCard)
+{
+    questionCard.RequiredWords = null;
+}
+else if (question is MCSACardModel mcsaCard)
+{
+    mcsaCard.CorrectOptionNumber = 0;
+}
+```
+
+It works as intended. The code above removes the answer from the requested question. Well it doesnt *remove* the question, 
+it sets it to null or zero. Either way you can't cheat by finding the real answer in the debugger, which was the point.
+
+The API now accepts more arguments. 'api/quiz' returns a list of all questions, 'api/quiz/4' returns the question
+with questionId 4 (without answer), 'api/quiz/[anything unknown]' returns a StatusCode NotFound with a 'Resource not
+found' message, and 'api/quiz/instructions' returns a list of all initial instructions. This is, in other words, 
+good progress towards a functional controller class. At least I think it is. I don't really know.
+
+Now that I've arrived at the part where the API returns instructions regarding how the quiz is played, I've taken
+notice of something in InterfaceHandler. It's definetely not customized for API usage. Like this, it seems I may have
+to use the class more sparingly than I'd hoped, but I suppose it makes sense since it'd otherwise have to be customized
+for usage not only by a command-line application, but also a WPF GUI application as well as a web-based one. Since I'm 
+no god of C# and do not possess an otherwordly form of foresight, I did not expect to need access to InterfaceHandler
+without using any manager in the process. Many of InterfaceHandler's methods rely on usage of a manager, such as 
+FileManager, which I will not be using in this case. The API essentially already deals with any tasks that 
+DatabaseManager would handle. Speaking of, I should probably remove that class.
+
+As stated above, InterfaceHandler is not customized for API usage. I suspect this is going to become more of a problem
+as I move on. Right now, I'm pondering the possibilities regarding checking the answer that a player has submitted.
+This is the method in InterfaceHandler that checks your answer: 
+```
+private string CheckQuestionAnswer(string answer)
+{
+    QuestionCard card = questionCards[totalAnswers++];
+
+    int pointsGained = card.CheckQuestionAnswer(answer);
+
+    correctAnswers += pointsGained;
+
+    if (pointsGained == 0)
+    {
+        return "Incorrect.";
+    }
+    return "Correct!";
+}
+```
+This is a problem. The current question is determined by the total number of answers, but from an array of all questions.
+These questions are read from the file using FileManager. So, I'm going to have to fix this somehow. I know for a fact
+that there are many solutions to this problem, and I'm going to have to find a suitable one to make sure I don't shoot
+myself in the foot again. Again.
+
+2024-1-12
+-------------
+With some help and guidance, I've gotten a suggestion for a new approach that could potentially make this whole project
+very smooth indeed. Instead of struggling my way through using InterfaceHandler with the API somehow, I can do it 
+the other way around. If I ditch the old file managing system of using a file, I can use the API and SQL database 
+for every project, command-line, desktop and React application. If I manage it well, it could make the project more 
+concise, faster, and more scalable.
+
+2024-1-16
+----------
+After much trial and error and more errors, I have successfully made an HTTP GET request from InterfaceHandler. However,
+I have a few classes execute. I'll try to adjust this project as a whole to use only the API and SQL database. No
+file manager, in other words. Several of the classes in QuizLibrary will, as such, become obsolete. These include
+MCSACard.cs, QuestionCard.cs, IManager.cs, and Filemanager.cs. Possibly also Deck.cs and Quiz.cs. Long story short,
+every single class except InterfaceHandler.cs may soon depart once more. Doing so will make the API rather chunky though,
+so I may want to take that into account. Come to think of it, Deck.cs is basically already obsolete. Using the API, I
+don't even need any deck. Interesting. Plan seems to be to move everything from InterfaceHandler to the API, but that
+would mean many lines of code.
+* https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/http/httpclient
+* https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/deserialization
+* https://learn.microsoft.com/en-us/dotnet/standard/parallel-programming/how-to-return-a-value-from-a-task

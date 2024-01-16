@@ -17,11 +17,11 @@ namespace Web_App.Server.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Question>>? Get()
+        public ActionResult<List<QuestionModel>>? GetAllQuestions()
         {
             try
             {
-                List<Question>? questions = quizService.GetAllQuestions();
+                List<QuestionModel>? questions = quizService.GetAllQuestions();
 
                 return questions == null ? NotFound() : Ok(questions);
             }
@@ -30,19 +30,39 @@ namespace Web_App.Server.Controllers
                 return StatusCode(500, "Internal Server Error: " + ex);
             }
         }
-        [HttpGet("{id}")]
-        public ActionResult<Question>? GetById(int id)
+        [HttpGet("{id:int}")]
+        public ActionResult<QuestionModel>? GetQuestionWithoutAnswerById(int id)
         {
             try
             {
-                Question? question = quizService.GetQuestionById(id);
-
+                QuestionModel? question = quizService.GetQuestionWithoutAnswerById(id);
+                //int antal_rätt = question.CheckQuestionAnswer("hej");
                 return question == null ? NotFound() : Ok(question);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal Server Error: " + ex);
             }
+        }
+        
+        [HttpGet("instructions")]
+        public ActionResult<List<string>> GetInstructions()
+        {
+            try
+            {
+                List<string> instructions = quizService.GetInitialInstructions();
+
+                return instructions == null ? NotFound() : Ok(instructions);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex);
+            }
+        }
+        [HttpGet("{*path}")]
+        public ActionResult<string> HandleUnknownRoute()
+        {
+            return NotFound("Resource not found.");
         }
     }
 }

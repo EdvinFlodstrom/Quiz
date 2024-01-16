@@ -111,7 +111,7 @@ namespace WPF_GUI_Question
             ResetQuestionCreatingRelatedBooleans(false, false, false);
             InstructionsAndAnswer.IsEnabled = true;
 
-            List<string> listOfInstructions = handler.LogInstructions();
+            List<string> listOfInstructions = handler.LogInstructions(response);
 
             Instructions.Text = listOfInstructions[0];
 

@@ -7,7 +7,7 @@ namespace FrågesportNetFramework
 {
     public class UserInterface
     {
-        InterfaceHandler handler = new InterfaceHandler(new FileManager());
+        InterfaceHandler handler = new InterfaceHandler(new HttpClient());
         public UserInterface() { }
         private string DoWhileMethod(int highestAllowedNumber)
         {
@@ -32,7 +32,7 @@ namespace FrågesportNetFramework
 
             do
             {
-                foreach (string item in handler.LogInstructions())
+                foreach (string item in handler.LogInstructions().Result)
                 {
                     Console.WriteLine(item);
                 }

@@ -1,5 +1,7 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
+//TODO remove QuizLibrary - integrate it completely into the API
+using QuizLibrary;
 using Web_App.Server.Data;
 using Web_App.Server.Services;
 
@@ -19,6 +21,16 @@ namespace Web_App.Server
             services.AddControllers();
             services.AddEndpointsApiExplorer();
 
+            // TODO fix MediatR
+            //services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            services.AddHttpClient("ApiClient", client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7140/api/quiz");
+            });
+
+            services.AddScoped<InterfaceHandler>();
+
             services.AddScoped<QuizService>();
 
             services.AddDbContext<QuizContext>(options =>
@@ -33,11 +45,6 @@ namespace Web_App.Server
             app.UseStaticFiles();
 
             app.UseRouting();
-
-            if (env.IsDevelopment())
-            {
-                // Swagger was here
-            }
 
             app.UseHttpsRedirection();
 
