@@ -44,7 +44,23 @@ namespace Web_App.Server.Controllers
                 return StatusCode(500, "Internal Server Error: " + ex);
             }
         }
-        
+        [HttpGet("initquiz/{playerName}/{numberOfQuestions:int}")]
+        public ActionResult InitializeQuiz(string playerName, int numberOfQuestions)
+        {
+            try
+            {                
+                bool quizInitializedSuccessfully = quizService.InitializeQuiz(playerName, numberOfQuestions);
+
+                return quizInitializedSuccessfully == true ?
+                    Ok($"Quiz has been initialized successfully for player {playerName}.")
+                    : BadRequest("Player was not added and no quiz was initialized. " +
+                    "Please make sure that the player name is correctly formatted.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex);
+            }                
+        }
         [HttpGet("instructions")]
         public ActionResult<List<string>> GetInstructions()
         {

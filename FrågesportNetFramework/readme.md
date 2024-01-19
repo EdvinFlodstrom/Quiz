@@ -135,7 +135,7 @@ not replaced with anything. I'll have to fix this real quick.
 It didn't take many minutes to fix the mentioned above issue. I simply separated the 
 `RemoveOrModifyQuestion(int numberOfQuestion, string modifiedQuestion = "")` method into a few more steps, so it
 now looks like this:
-```
+```csharp
     int numberOfQuestionToModify = Convert.ToInt32(VerifyAnswer(numberOfQuestions));
     string modifiedQuestion = CreateQuestion(true);
 
@@ -181,7 +181,7 @@ Makes it a little more user friendly, I think.
 This morning, I thought of something. I thought: "What if you try to add a question that already exists in the quiz 
 to the quiz?". Answer: it works. Some fifteen minutes later, now it doesn't. In the FileManager class, 
 I added an if-statement to the AddQuestion method, like this:
-```
+```chsarp
 if (questionCardString.ToLower().Contains(item[1].ToLower()))
 {
     return false; //Quiz does not allow you to add a question that already exists.
@@ -468,7 +468,7 @@ questionCard) did the trick.
 #### WPF Filhantering
 It wasn't quite as easy as it seemed at first, to fix the issue I ran into yesterday. But now it is fixed, so there's 
 that. I changed the code to: 
-```
+```csharp
 foreach (QuestionCard item in quiz.ListOfSortedQuestionCards())
     {
         if (item.Question == questionCards[Convert.ToInt32(numberOfQuestion)].Question)
@@ -552,7 +552,7 @@ Hours upon hours. What little progress I make is hardly relevant. I can get all 
 from the Questions table in the Quiz database, but that's it. No matter how much I try, or what I try, I can't seem
 to figure out how to access the other tables (QuestionCard and MCSACard. These contain the correct answer and potential
 options). A query such as this works: 
-```
+```csharp
 var allQuestions = quizContext.Questions
     .Select(q => new
     {
@@ -571,7 +571,7 @@ searched the web for solutions, asked ChatGPT, but all to no avail.
 Looks like everything's working now, at last. Seems I had a tad too much tunnel vision, trying a little too 
 rigorously to follow ChatGPT's advice. It adviced me to use a discriminator column and such for structure,
 looking a bit like this:
-```
+```csharp
     modelBuilder.Entity<Question>()
         .HasDiscriminator<string>("QuestionType")  // Discriminator column for TPH
         .HasValue<QuestionCard>("QuestionCard")    // Discriminator value for QuestionCard
@@ -589,7 +589,7 @@ looking a bit like this:
 ```
 However, I could not get this to work no matter how much I tried. Eventually, I gave up trying so strictly to 
 follow ChatGPT's instructions. Instead, I wrote this myself:
-```
+```csharp
     modelBuilder.Entity<Question>()
         .HasKey(q => q.QuestionId);
 
@@ -609,7 +609,7 @@ know that it works. I can get all the questions with the following query: `var q
 I can also get only QuestionCard type questions by changing `Questions` to `QuestionCards`, or only MCSA type questions
 by changing `Questions` to `MCSACards`. At any rate, this is what one of the questions looks like as a JSON object
 when requesting all questions with `var q = quizContext.Questions.ToList();`:
-```
+```csharp
 {
     "questionId": 1,
     "questionText": "In chess, how many pawns do each side start with?",
@@ -668,7 +668,7 @@ returned as I explained above, but currently I can not access the properties of 
 
 Problem fixed.
 
-```
+```chsarp
 var question = quizContext.QuestionCards.FirstOrDefault(q => q.QuestionId == id) as QuestionModel
     ?? quizContext.MCSACards.FirstOrDefault(q => q.QuestionId == id);
 
@@ -702,7 +702,7 @@ DatabaseManager would handle. Speaking of, I should probably remove that class.
 As stated above, InterfaceHandler is not customized for API usage. I suspect this is going to become more of a problem
 as I move on. Right now, I'm pondering the possibilities regarding checking the answer that a player has submitted.
 This is the method in InterfaceHandler that checks your answer: 
-```
+```csharp
 private string CheckQuestionAnswer(string answer)
 {
     QuestionCard card = questionCards[totalAnswers++];
@@ -744,3 +744,49 @@ would mean many lines of code.
 * https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/http/httpclient
 * https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/deserialization
 * https://learn.microsoft.com/en-us/dotnet/standard/parallel-programming/how-to-return-a-value-from-a-task
+
+2024-01-09
+-----------
+MediatR works now - it doesn't crash the program anymore.
+* https://stackoverflow.com/questions/75527541/could-not-load-type-mediatr-servicefactory
+
+I'm pondering possibilities regarding question storage. A short discussion later, it's decided that I will add a new 
+table to the SQL database. It will contain four rows:
+1. (`string`) Name of current player
+2. (`int`) Number of correct answers
+3. (`int`) Number of current question
+4. (`List<int>`) List of all QuestionIds of questions in the current quiz session
+
+This table should help tremendously both in keeping track of relevant information and in separating frontend from 
+backend. Should I do it right, the player will not be able to cheat so easily.
+
+I now have an SQL query with which I've created the table.
+
+```sql
+CREATE TABLE dbo.PlayerStatistics (
+    PlayerName NVARCHAR(30) NOT NULL,
+    CorrectAnswers INT NOT NULL,
+    NumberOfCurrentQuestion INT NOT NULL,
+    ListOfQuestionIds NVARCHAR(MAX) NOT NULL, 
+
+    CONSTRAINT PK_PlayerStatistics PRIMARY KEY (PlayerName),
+    CONSTRAINT FK_PlayerStatistics_Questions FOREIGN KEY (ListOfQuestionIds)
+        REFERENCES dbo.Questions(QuestionId)
+);
+```
+
+Tried to, anyway. This query has ListOfQuestionIds, which was to be a comma-separated string containing QuestionIds of 
+all current questions. Alas, since QuestionIds is an integer in dbo.Questions, the query caused an error. It looks 
+like I either need to change ListOfQuestionIds from a string, or add a whole separate table. I'll see how I can fix
+the issue.
+
+Problem removed, literally. Since a foreign key from ListOfQuestionIds to dbo.Questions(QuestionId) isn't even necessary,
+I simply removed the code from the query. And just like that, it works. It looks good, but I'll have to test it to 
+make sure it works. Also, the interactions with this table are going to be a little more detailed than those
+with the other tables.
+
+I've now implemented and fixed any issues regarding a new PlayerStatisticsModel that maps to the PlayerStatistics table
+in the SQL database. All works well, as far as I can tell.
+
+Now, one can initialize the quiz with a new or existing player name. The player name is added to the new table
+PlayerStatistics in the SQL database, along some randomized QuestionIds.

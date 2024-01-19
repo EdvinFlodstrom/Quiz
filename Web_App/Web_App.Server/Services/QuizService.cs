@@ -1,4 +1,5 @@
-﻿using System.Runtime.Intrinsics.Arm;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Runtime.Intrinsics.Arm;
 using Web_App.Server.Data;
 using Web_App.Server.Models;
 
@@ -6,8 +7,8 @@ namespace Web_App.Server.Services
 {
     public class QuizService
     {
+        private Random rnd = new Random();
         private readonly QuizContext quizContext;
-
         public QuizService(QuizContext quizContext)
         {
             this.quizContext = quizContext;            
@@ -58,6 +59,54 @@ namespace Web_App.Server.Services
             catch
             {
                 return null;
+            }
+        }
+        public bool InitializeQuiz(string playerName, int numberOfQuestions)
+        {
+            try
+            {
+                var playerExists = quizContext.PlayerStatistics.FirstOrDefault(p => p.PlayerName == playerName);
+
+                var questions = GetAllQuestions();
+                string stringOfSpaceSeparatedQuestionIds = "";
+                List<int> listOfQuestionIdsOfQuestions = [];
+                foreach (var item in questions)
+                {
+                    listOfQuestionIdsOfQuestions.Add(item.QuestionId);
+                }
+
+                for (int i = 0; i < numberOfQuestions; i++)
+                {
+                    int randomIndex = rnd.Next(0, listOfQuestionIdsOfQuestions.Count - 1);
+                    stringOfSpaceSeparatedQuestionIds += listOfQuestionIdsOfQuestions[randomIndex].ToString() + " "; 
+                    listOfQuestionIdsOfQuestions.RemoveAt(randomIndex);                     
+                }
+
+                if (playerExists != null)
+                {                    
+                    playerExists.ListOfQuestionIds = stringOfSpaceSeparatedQuestionIds;
+                    
+                    quizContext.SaveChanges();
+                }
+                else
+                {
+                    var newPlayer = new PlayerStatisticsModel
+                    {
+                        PlayerName = playerName,
+                        NumberOfCurrentQuestion = 0,
+                        CorrectAnswers = 0,
+                        ListOfQuestionIds = stringOfSpaceSeparatedQuestionIds
+                    };
+
+                    quizContext.PlayerStatistics.Add(newPlayer);
+                    quizContext.SaveChanges();
+                }
+                
+                return true;
+            }
+            catch 
+            {
+                return false;
             }
         }
     }
