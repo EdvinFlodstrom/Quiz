@@ -745,7 +745,7 @@ would mean many lines of code.
 * https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/deserialization
 * https://learn.microsoft.com/en-us/dotnet/standard/parallel-programming/how-to-return-a-value-from-a-task
 
-2024-01-09
+2024-01-19
 -----------
 MediatR works now - it doesn't crash the program anymore.
 * https://stackoverflow.com/questions/75527541/could-not-load-type-mediatr-servicefactory
@@ -790,3 +790,16 @@ in the SQL database. All works well, as far as I can tell.
 
 Now, one can initialize the quiz with a new or existing player name. The player name is added to the new table
 PlayerStatistics in the SQL database, along some randomized QuestionIds.
+
+2024-01-23
+-----------
+After a bit of struggle, but honestly surprisingly little, I've now implemented usage of MediatR. Instead of 
+QuizController interacting directly with QuizService, it now uses MediatR to send a command using 
+a command handler which uses a command. Currently, this only works for the InitializeQuiz method, and I've three errors
+regarding the name 'quizService' not existing in the current context. However, this should be easy to fix as I shall
+modify each method to use MediatR as I just did with InitializeQuiz. I've also tested the method in question and it 
+appears to work just fine.
+
+Some time later, I've now fully integrated usage of MediatR into the project. Now, every existing method in QuizController
+uses MediatR queries and commands to communicate with QuizService. I created a Handlers folder, containing a Questions
+folder and a Quiz folder. These contain Queries, QueryHandlers, Commands, and CommandHandlers.

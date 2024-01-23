@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Runtime.Intrinsics.Arm;
-using Web_App.Server.Data;
+﻿using Web_App.Server.Data;
 using Web_App.Server.Models;
 
 namespace Web_App.Server.Services
@@ -13,9 +11,9 @@ namespace Web_App.Server.Services
         {
             this.quizContext = quizContext;            
         }        
-        public List<string> GetInitialInstructions()
+        public Task<List<string>> GetInitialInstructions()
         {
-            return new List<string>
+            return Task.FromResult(new List<string>
             {
                 "Welcome to the quiz UI! Your options are as follow:",
                 "1. Take the quiz.",
@@ -23,22 +21,22 @@ namespace Web_App.Server.Services
                 "3. Remove a question from the quiz.",
                 "4. Modify a question in the quiz.",
                 "5. Close the application."
-            };
+            });
         }
-        public List<QuestionModel>? GetAllQuestions()
+        public Task<List<QuestionModel>> GetAllQuestions()
         {
             try
             {
                 var questions = quizContext.Questions.ToList();
 
-                return questions;
+                return Task.FromResult(questions);
             }
             catch
             { 
                 return null;
             }
         }
-        public QuestionModel? GetQuestionWithoutAnswerById(int id)
+        public Task<QuestionModel> GetQuestionWithoutAnswerById(int id)
         {
             try
             {
@@ -54,14 +52,14 @@ namespace Web_App.Server.Services
                     mcsaCard.CorrectOptionNumber = 0;
                 }
 
-                return question;
+                return Task.FromResult<QuestionModel>(question);
             }
             catch
             {
                 return null;
             }
         }
-        public bool InitializeQuiz(string playerName, int numberOfQuestions)
+        public async Task<bool> InitializeQuiz(string playerName, int numberOfQuestions)
         {
             try
             {
@@ -70,7 +68,7 @@ namespace Web_App.Server.Services
                 var questions = GetAllQuestions();
                 string stringOfSpaceSeparatedQuestionIds = "";
                 List<int> listOfQuestionIdsOfQuestions = [];
-                foreach (var item in questions)
+                foreach (var item in await questions)
                 {
                     listOfQuestionIdsOfQuestions.Add(item.QuestionId);
                 }

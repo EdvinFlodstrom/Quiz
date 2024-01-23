@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Web_App.Server.Services;
 using Web_App.Server.Models;
+using Web_App.Server.Handlers.Quiz;
+using MediatR;
+using Web_App.Server.Handlers.Questions;
 
 namespace Web_App.Server.Controllers
 {
@@ -9,35 +10,46 @@ namespace Web_App.Server.Controllers
     [Route("api/[controller]")]
     public class QuizController : ControllerBase
     {
-        private readonly QuizService quizService;
+        private readonly IMediator mediator;
 
-        public QuizController(QuizService quizService)
+        public QuizController(IMediator mediator)
         {
-            this.quizService = quizService;
+            this.mediator = mediator;
         }
 
         [HttpGet]
-        public ActionResult<List<QuestionModel>>? GetAllQuestions()
+        public async Task<ActionResult<List<QuestionModel>>> GetAllQuestions()
         {
             try
             {
-                List<QuestionModel>? questions = quizService.GetAllQuestions();
+                var query = new GetAllQuestionsQuery();
+                List<QuestionModel> questions = await mediator.Send(query);
 
-                return questions == null ? NotFound() : Ok(questions);
+                return questions == null 
+                    ? NotFound() 
+                    : Ok(questions);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal Server Error: " + ex);
             }
         }
-        [HttpGet("{id:int}")]
-        public ActionResult<QuestionModel>? GetQuestionWithoutAnswerById(int id)
+        [HttpGet("{questionId:int}")]
+        public async Task<ActionResult<QuestionModel>> GetQuestionWithoutAnswerById(int questionId)
         {
             try
             {
-                QuestionModel? question = quizService.GetQuestionWithoutAnswerById(id);
-                //int antal_rätt = question.CheckQuestionAnswer("hej");
-                return question == null ? NotFound() : Ok(question);
+                var request = new GetQuestionWithoutAnswerByIdCommand()
+                {
+                    QuestionId = questionId
+                };
+                QuestionModel? question = await mediator.Send(request);
+
+                //int antal_rätt = question.CheckQuestionAnswer("hej");                
+                
+                return question == null 
+                    ? NotFound() 
+                    : Ok(question);
             }
             catch (Exception ex)
             {
@@ -45,14 +57,20 @@ namespace Web_App.Server.Controllers
             }
         }
         [HttpGet("initquiz/{playerName}/{numberOfQuestions:int}")]
-        public ActionResult InitializeQuiz(string playerName, int numberOfQuestions)
+        public async Task<ActionResult> InitializeQuiz(string playerName, int numberOfQuestions)
         {
             try
-            {                
-                bool quizInitializedSuccessfully = quizService.InitializeQuiz(playerName, numberOfQuestions);
+            {
+                var command = new InitializeQuizCommand
+                {
+                    PlayerName = playerName,
+                    NumberOfQuestions = numberOfQuestions
+                };
 
-                return quizInitializedSuccessfully == true ?
-                    Ok($"Quiz has been initialized successfully for player {playerName}.")
+                bool quizInitializedSuccessfully = await mediator.Send(command);
+
+                return quizInitializedSuccessfully == true 
+                    ? Ok($"Quiz has been initialized successfully for player {playerName}.")
                     : BadRequest("Player was not added and no quiz was initialized. " +
                     "Please make sure that the player name is correctly formatted.");
             }
@@ -62,13 +80,16 @@ namespace Web_App.Server.Controllers
             }                
         }
         [HttpGet("instructions")]
-        public ActionResult<List<string>> GetInstructions()
+        public async Task<ActionResult<List<string>>> GetInitialInstructions()
         {
             try
             {
-                List<string> instructions = quizService.GetInitialInstructions();
+                var query = new GetInitialInstructionsQuery();
+                List<string> instructions = await mediator.Send(query);
 
-                return instructions == null ? NotFound() : Ok(instructions);
+                return instructions == null 
+                    ? NotFound() 
+                    : Ok(instructions);
             }
             catch (Exception ex)
             {
