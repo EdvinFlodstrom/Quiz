@@ -17,45 +17,6 @@ namespace Web_App.Server.Controllers
             this.mediator = mediator;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<QuestionModel>>> GetAllQuestions()
-        {
-            try
-            {
-                var query = new GetAllQuestionsQuery();
-                List<QuestionModel> questions = await mediator.Send(query);
-
-                return questions == null 
-                    ? NotFound() 
-                    : Ok(questions);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal Server Error: " + ex);
-            }
-        }
-        [HttpGet("{questionId:int}")]
-        public async Task<ActionResult<QuestionModel>> GetQuestionWithoutAnswerById(int questionId)
-        {
-            try
-            {
-                var request = new GetQuestionWithoutAnswerByIdCommand()
-                {
-                    QuestionId = questionId
-                };
-                QuestionModel? question = await mediator.Send(request);
-
-                //int antal_rätt = question.CheckQuestionAnswer("hej");                
-                
-                return question == null 
-                    ? NotFound() 
-                    : Ok(question);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal Server Error: " + ex);
-            }
-        }
         [HttpGet("initquiz/{playerName}/{numberOfQuestions:int}")]
         public async Task<ActionResult> InitializeQuiz(string playerName, int numberOfQuestions)
         {
@@ -67,17 +28,76 @@ namespace Web_App.Server.Controllers
                     NumberOfQuestions = numberOfQuestions
                 };
 
-                bool quizInitializedSuccessfully = await mediator.Send(command);
+                InitializeQuizCommandResponse quizInitializedSuccessfully = await mediator.Send(command);
 
-                return quizInitializedSuccessfully == true 
+                return quizInitializedSuccessfully.Success == true
                     ? Ok($"Quiz has been initialized successfully for player {playerName}.")
-                    : BadRequest("Player was not added and no quiz was initialized. " +
+                    : StatusCode(500, $"{quizInitializedSuccessfully.ErrorMessage} Player was not added and no quiz was initialized. " +
                     "Please make sure that the player name is correctly formatted.");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal Server Error: " + ex);
-            }                
+            }
+        }
+        [HttpGet]
+        public async Task<ActionResult<List<QuestionModel>>> GetAllQuestions()
+        {
+            try
+            {
+                var query = new GetAllQuestionsQuery();
+                GetAllQuestionsQueryResponse questions = await mediator.Send(query);
+
+                return questions.Success == true 
+                    ? Ok(questions.Questions)
+                    : StatusCode(500, questions.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex);
+            }
+        }
+        [HttpGet("{questionId:int}")]
+        public async Task<ActionResult<QuestionModel>> GetQuestionWithoutAnswerById(int questionId)
+        {
+            try
+            {
+                var request = new GetQuestionWithOrWithoutAnswerByIdCommand()
+                {
+                    QuestionId = questionId,
+                    IncludeAnswer = false
+                };
+
+                GetQuestionWithOrWithoutAnswerByIdCommandReponse question = await mediator.Send(request);
+                
+                return question.Success == true 
+                    ? Ok(question.Question)
+                    : StatusCode(500, question.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error: " + ex);
+            }
+        }        
+        [HttpGet("{playerName}/{questionId:int}/{playerAnswer}")]
+        public async Task<ActionResult<QuestionModel>> CheckQuestionAnswer(string playerName, int questionId, string playerAnswer)
+        {
+            var request = new GetQuestionWithOrWithoutAnswerByIdCommand()
+            {
+                QuestionId = questionId,
+                IncludeAnswer = true
+            };
+
+            GetQuestionWithOrWithoutAnswerByIdCommandReponse question = await mediator.Send(request);
+
+            if (question.Question.CheckQuestionAnswer(playerAnswer) != 0)
+            {
+                return Ok("Correct!");
+            }
+            else
+            {
+                return Ok("Incorrect.");
+            }
         }
         [HttpGet("instructions")]
         public async Task<ActionResult<List<string>>> GetInitialInstructions()
@@ -85,11 +105,11 @@ namespace Web_App.Server.Controllers
             try
             {
                 var query = new GetInitialInstructionsQuery();
-                List<string> instructions = await mediator.Send(query);
+                GetInitialInstructionsQueryResponse instructions = await mediator.Send(query);
 
-                return instructions == null 
-                    ? NotFound() 
-                    : Ok(instructions);
+                return instructions.Success == true
+                    ? Ok(instructions.Instructions)
+                    : StatusCode(500, instructions.ErrorMessage);
             }
             catch (Exception ex)
             {

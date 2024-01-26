@@ -36,20 +36,23 @@ namespace Web_App.Server.Services
                 return null;
             }
         }
-        public Task<QuestionModel> GetQuestionWithoutAnswerById(int id)
+        public Task<QuestionModel> GetQuestionWithOrWithoutAnswerById(int id, bool includeAnswer)
         {
             try
             {
                 var question = quizContext.QuestionCards.FirstOrDefault(q => q.QuestionId == id) as QuestionModel
                     ?? quizContext.MCSACards.FirstOrDefault(q => q.QuestionId == id);
 
-                if (question is QuestionCardModel questionCard)
+                if (!includeAnswer)
                 {
-                    questionCard.RequiredWords = null;
-                }
-                else if (question is MCSACardModel mcsaCard)
-                {
-                    mcsaCard.CorrectOptionNumber = 0;
+                    if (question is QuestionCardModel questionCard)
+                    {
+                        questionCard.RequiredWords = null;
+                    }
+                    else if (question is MCSACardModel mcsaCard)
+                    {
+                        mcsaCard.CorrectOptionNumber = 0;
+                    }
                 }
 
                 return Task.FromResult<QuestionModel>(question);

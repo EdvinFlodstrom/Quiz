@@ -3,23 +3,40 @@ using Web_App.Server.Services;
 
 namespace Web_App.Server.Handlers.Quiz
 {
-    public class GetInitialInstructionsQueryHandler : IRequestHandler<GetInitialInstructionsQuery, List<string>>
+    public class GetInitialInstructionsQuery : IRequest<GetInitialInstructionsQueryResponse>
+    {
+    }
+
+    public class GetInitialInstructionsQueryHandler : IRequestHandler<GetInitialInstructionsQuery, GetInitialInstructionsQueryResponse>
     {
         private readonly QuizService quizService;
         public GetInitialInstructionsQueryHandler(QuizService quizService)
         {
             this.quizService = quizService;
         }
-        public async Task<List<string>> Handle(GetInitialInstructionsQuery query, CancellationToken cancellationToken)
+        public async Task<GetInitialInstructionsQueryResponse> Handle(GetInitialInstructionsQuery query, CancellationToken cancellationToken)
         {
+            var response = new GetInitialInstructionsQueryResponse();
+
             try
             {
-                return await quizService.GetInitialInstructions();
+                response.Instructions = await quizService.GetInitialInstructions();
+                response.Success = true;
             }
-            catch 
+            catch (Exception ex) 
             {
-                return null;
+                response.ErrorMessage = ex.Message;
+                response.Success = false;
             }
+
+            return response;
         }
+    }
+
+    public class GetInitialInstructionsQueryResponse
+    {
+        public List<string> Instructions { get; set; }
+        public bool Success { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

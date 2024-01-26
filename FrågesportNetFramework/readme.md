@@ -803,3 +803,47 @@ appears to work just fine.
 Some time later, I've now fully integrated usage of MediatR into the project. Now, every existing method in QuizController
 uses MediatR queries and commands to communicate with QuizService. I created a Handlers folder, containing a Questions
 folder and a Quiz folder. These contain Queries, QueryHandlers, Commands, and CommandHandlers.
+
+2024-01-26
+-----------
+I've now updated the MediatR usage. I combined the Query and QueryHandlers into one, same with Command and CommandHandler.
+I also added a success body class to each query and command. It makes the code cleaner, clearer, and more concise.
+Also, thanks to the added response body class, I can return both a bool 'Success' and a string 'ErrorMessage', so in
+QuizController, I can check that 'Success' is true. If it is, return Ok(), if not, return StatusCode(500, ErrorMessage).
+Improvements, so to say.
+
+Now, one can also check their answer. Not in any of the programs, but through Postman I can check an answer. The following:
+'https://localhost:7140/api/quiz/John Doe/2/iceland volcano' will return an Ok('Correct!'). The question is 'What is 
+Eyjafjallajökull, and where is it located?'. I almost made a dummy mistake that caused it to return 'Incorrect' 
+instead, and here's why:
+```csharp
+if (question.Question.CheckQuestionAnswer(playerAnswer) != 0)
+{
+    return Ok("Correct!");
+}
+```
+This is correct, and it uses the method in QuestionModel to check the player's answer. As it should be, in other words.
+The following is what I wrote at first, before realizing it was incorect: 
+```chsarp
+if (playerAnswer == question.Question.GetCorrectAnswer())
+{
+    return Ok("Correct!");
+}
+```
+This checks that the player answer is identical to the question's correct answer. It doesn't have to be wrong - it gets
+the job done. But it wouldn't have used a method I made long ago for this very reason. Answering 
+'It is a volcano on Iceland' should return correct even if, in the database, the correct answer is stored as 
+'iceland volcano'. The method I mentioned that checks the answer makes sure that the words stored in the database
+are included in the player's correct answer, it doesn't check that they're identical. Simply put, this way of doing it
+allows for a little more freedom in the player's answers.
+
+Now, one can get a question, without or with an answer (the latter is not accessible unless the player also sends
+their guessed answer, so I don't *think* you can cheat using that method), and also check if the inputted answer is
+correct or not. What's next is to fix 'NumberOfCurrentQuestion' in the table in the SQL database. It needs to be set to
+an initial value at some point, to then be updated at another point. This is number I will use to get each question, so
+it's obviously important for the continued evolution of this project.
+
+Sidenote: I also added `throw new Exception();` to test that the returned ErrorMessage from the MediatR queries and 
+commands works properly, and it does. 
+
+TODO: split string of QuestionIds into a List<int>, and work with indexes.
