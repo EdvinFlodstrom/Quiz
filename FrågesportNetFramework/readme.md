@@ -844,6 +844,25 @@ an initial value at some point, to then be updated at another point. This is num
 it's obviously important for the continued evolution of this project.
 
 Sidenote: I also added `throw new Exception();` to test that the returned ErrorMessage from the MediatR queries and 
-commands works properly, and it does. 
+commands works properly, and it does. I then removed the `throw new Exception();`, of course.
 
-TODO: split string of QuestionIds into a List<int>, and work with indexes.
+* https://stackoverflow.com/questions/75527541/could-not-load-type-mediatr-servicefactory
+* https://stackoverflow.com/questions/12886559/cannot-implicitly-convert-type-from-task
+* https://stackoverflow.com/questions/7465704/how-i-can-convert-string-to-listint
+
+2024-01-30
+------------
+I've now added some code to the InitializeQuiz method in QuizService.cs that splits the space separated list into a 
+List<int>. It gave me a bit of trouble, since an error was being thrown. I did not notice this at first though, since
+my try-catch statements appear to be a little off. If an error is thrown in QuizService.cs, a bool false is returned.
+In InitializeQuizcommand.cs, the property QuizInitializedSuccessfully will be set to false. This does not, however,
+change anything relevant, as Success is set to true and the rest of the program assumes the quiz initialization was 
+successful. As such, I was getting a 'Quiz has been initialized successfully' message, which confused me. It did not take
+me too long to realize what the issue was, and it turns out that a trailing space after the last number in the space
+separated list of QuestionIds (string) caused an error to be thrown. So, I added .Trim() and it worked. I'll have to
+fix the try-catch statements though, they are not fine as is. On the bright side, the player is now given a current
+question number upon initializing the quiz.
+
+I've split the GetQuestionWithOrWithoutAnswer (or whatever it was called) in QuizService into three methods now. It
+makes the code more clear, simply put. This means that I also added another MediatR command, so now there's one for
+retrieving a question and one for checking an answer and retrieving a response as a string based on the answer.

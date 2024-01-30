@@ -1,17 +1,6 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using QuizLibrary;
 
 namespace WPF_GUI_Question
@@ -21,7 +10,7 @@ namespace WPF_GUI_Question
     /// </summary>  
     public partial class MainWindow : Window
     {        
-        InterfaceHandler handler = new InterfaceHandler(new FileManager());
+        InterfaceHandler handler = new InterfaceHandler(new HttpClient());
         List<Button> buttons = new List<Button>();
         QuestionCard quizQuestion;
         List<List<string>> listWithDetailsOfQuestionActions;
@@ -111,7 +100,7 @@ namespace WPF_GUI_Question
             ResetQuestionCreatingRelatedBooleans(false, false, false);
             InstructionsAndAnswer.IsEnabled = true;
 
-            List<string> listOfInstructions = handler.LogInstructions(response);
+            List<string> listOfInstructions = handler.LogInstructions().Result;
 
             Instructions.Text = listOfInstructions[0];
 

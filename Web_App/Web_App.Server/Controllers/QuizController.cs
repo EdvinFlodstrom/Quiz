@@ -57,18 +57,17 @@ namespace Web_App.Server.Controllers
                 return StatusCode(500, "Internal Server Error: " + ex);
             }
         }
-        [HttpGet("{questionId:int}")]
-        public async Task<ActionResult<QuestionModel>> GetQuestionWithoutAnswerById(int questionId)
+        [HttpGet("takequiz/{playerName}")]
+        public async Task<ActionResult<QuestionModel>> GetQuestionWithoutAnswer(string playerName)
         {
             try
             {
-                var request = new GetQuestionWithOrWithoutAnswerByIdCommand()
+                var request = new GetQuestionCommand()
                 {
-                    QuestionId = questionId,
-                    IncludeAnswer = false
+                    PlayerName = playerName
                 };
 
-                GetQuestionWithOrWithoutAnswerByIdCommandReponse question = await mediator.Send(request);
+                GetQuestionCommandResponse question = await mediator.Send(request);
                 
                 return question.Success == true 
                     ? Ok(question.Question)
@@ -79,24 +78,26 @@ namespace Web_App.Server.Controllers
                 return StatusCode(500, "Internal Server Error: " + ex);
             }
         }        
-        [HttpGet("{playerName}/{questionId:int}/{playerAnswer}")]
-        public async Task<ActionResult<QuestionModel>> CheckQuestionAnswer(string playerName, int questionId, string playerAnswer)
+        [HttpGet("takequiz/{playerName}/{playerAnswer}")]
+        public async Task<ActionResult<QuestionModel>> CheckQuestionAnswer(string playerName, string playerAnswer)
         {
-            var request = new GetQuestionWithOrWithoutAnswerByIdCommand()
+            try
             {
-                QuestionId = questionId,
-                IncludeAnswer = true
-            };
+                var request = new CheckAnswerCommand()
+                {
+                    PlayerName = playerName,
+                    PlayerAnswer = playerAnswer
+                };
 
-            GetQuestionWithOrWithoutAnswerByIdCommandReponse question = await mediator.Send(request);
+                CheckAnswerCommandReponse question = await mediator.Send(request);
 
-            if (question.Question.CheckQuestionAnswer(playerAnswer) != 0)
-            {
-                return Ok("Correct!");
+                return question.Success == true
+                    ? Ok($"{question.AnswerMessage}")
+                    : StatusCode(500, question.ErrorMessage);
             }
-            else
+            catch (Exception ex)
             {
-                return Ok("Incorrect.");
+                return StatusCode(500, "Internal Server Error: " + ex);
             }
         }
         [HttpGet("instructions")]

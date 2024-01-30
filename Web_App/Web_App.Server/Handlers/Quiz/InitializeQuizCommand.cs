@@ -25,7 +25,7 @@ namespace Web_App.Server.Handlers.Quiz
             try
             {
                 response.QuizInitializedSuccessfully = await quizService.InitializeQuiz(request.PlayerName, request.NumberOfQuestions);
-                response.Success = true;
+                response.Success = response.QuizInitializedSuccessfully;
             }
             catch (Exception ex)
             {
