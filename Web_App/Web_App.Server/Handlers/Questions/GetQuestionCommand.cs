@@ -7,7 +7,7 @@ namespace Web_App.Server.Handlers.Questions
 {
     public class GetQuestionCommand : IRequest<GetQuestionCommandResponse>
     {
-        public string PlayerName { get; set; }
+        public required string PlayerName { get; set; }
     }
 
     public class GetQuestionCommandHandler : IRequestHandler<GetQuestionCommand, GetQuestionCommandResponse>
@@ -31,6 +31,7 @@ namespace Web_App.Server.Handlers.Questions
             catch (Exception ex)
             {
                 response.ErrorMessage = ex.Message;
+                response.AnswerMessage = ex.Message;
                 response.Success = false;
             }
 
@@ -40,9 +41,9 @@ namespace Web_App.Server.Handlers.Questions
 
     public class GetQuestionCommandResponse
     {
-        public QuestionModel Question { get; set; }
-        public string AnswerMessage { get; set; }
+        public QuestionModel? Question { get; set; }
+        public string? AnswerMessage { get; set; }
         public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

@@ -35,8 +35,8 @@ namespace Web_App.Server.Handlers.Quiz
 
     public class GetInitialInstructionsQueryResponse
     {
-        public List<string> Instructions { get; set; }
+        public List<string>? Instructions { get; set; }
         public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

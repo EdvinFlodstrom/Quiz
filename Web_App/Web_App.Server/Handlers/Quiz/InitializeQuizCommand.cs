@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.IdentityModel.Tokens;
 using Web_App.Server.Services;
 
 namespace Web_App.Server.Handlers.Quiz
@@ -41,6 +40,6 @@ namespace Web_App.Server.Handlers.Quiz
     {
         public bool QuizInitializedSuccessfully { get; set; }
         public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

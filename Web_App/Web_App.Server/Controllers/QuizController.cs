@@ -33,7 +33,7 @@ namespace Web_App.Server.Controllers
                 return quizInitializedSuccessfully.Success == true
                     ? Ok($"Quiz has been initialized successfully for player {playerName}.")
                     : StatusCode(500, $"{quizInitializedSuccessfully.ErrorMessage} Player was not added and no quiz was initialized. " +
-                    "Please make sure that the player name is correctly formatted.");
+                    "Please make sure that the player name is correctly formatted, and that you chose an appropriate amount of questions.");
             }
             catch (Exception ex)
             {
@@ -71,7 +71,7 @@ namespace Web_App.Server.Controllers
                 
                 return question.Success == true 
                     ? Ok(question.Question)
-                    : StatusCode(500, question.ErrorMessage);
+                    : StatusCode(500, question.AnswerMessage + question.ErrorMessage);
             }
             catch (Exception ex)
             {
@@ -93,7 +93,7 @@ namespace Web_App.Server.Controllers
 
                 return question.Success == true
                     ? Ok($"{question.AnswerMessage}")
-                    : StatusCode(500, question.ErrorMessage);
+                    : StatusCode(500, question.AnswerMessage + question.ErrorMessage);
             }
             catch (Exception ex)
             {

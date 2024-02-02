@@ -6,11 +6,11 @@ namespace Web_App.Server.Services
 {
     public class QuizService
     {
-        private Random rnd = new Random();
+        private readonly Random rnd = new Random();
         private readonly QuizContext quizContext;
         public QuizService(QuizContext quizContext)
         {
-            this.quizContext = quizContext;            
+            this.quizContext = quizContext;
         }        
         public Task<List<string>> GetInitialInstructions()
         {
@@ -24,7 +24,7 @@ namespace Web_App.Server.Services
                 "5. Close the application."
             });
         }
-        public Task<List<QuestionModel>> GetAllQuestions()
+        public Task<List<QuestionModel>>? GetAllQuestions()
         {
             try
             {
@@ -44,9 +44,11 @@ namespace Web_App.Server.Services
             {
                 var playerExists = quizContext.PlayerStatistics.FirstOrDefault(p => p.PlayerName == playerName);
 
-                var questions = GetAllQuestions();
+                var questions = GetAllQuestions() ?? throw new NullReferenceException("No questions were found in the database.");
+
                 string stringOfSpaceSeparatedQuestionIds = "";
                 List<int> listOfQuestionIdsOfQuestions = [];
+
                 foreach (var item in await questions)
                 {
                     listOfQuestionIdsOfQuestions.Add(item.QuestionId);
@@ -95,20 +97,20 @@ namespace Web_App.Server.Services
                 return false;
             }
         }
-        private Task<(PlayerStatisticsModel player, QuestionModel question)> GetPlayerAndQuestion(string playerName)
+        private Task<(PlayerStatisticsModel? player, QuestionModel? question)> GetPlayerAndQuestion(string playerName)
         {
             var player = quizContext.PlayerStatistics.FirstOrDefault(p => p.PlayerName == playerName);
 
             if (player == null)
             {
-                return Task.FromResult<(PlayerStatisticsModel player, QuestionModel question)>((null, null));
+                return Task.FromResult<(PlayerStatisticsModel? player, QuestionModel? question)>((null, null));
             }
 
             var question = quizContext.Questions.FirstOrDefault(q => q.QuestionId == player.NumberOfCurrentQuestion);
 
-            return Task.FromResult<(PlayerStatisticsModel player, QuestionModel question)>((player, question));
+            return Task.FromResult<(PlayerStatisticsModel? player, QuestionModel? question)>((player, question));
         }
-        public async Task<(bool, string, QuestionModel)> GetQuestion(string playerName)
+        public async Task<(bool, string, QuestionModel?)> GetQuestion(string playerName)
         {
             try
             {
@@ -117,6 +119,18 @@ namespace Web_App.Server.Services
                 if (player == null)
                 {
                     return (false, "Player does not exist in the database.", null);
+                }
+                if (question == null)
+                {
+                    return (false, "You have already answered all your questions. Please initiaze the quiz to play again."
+                        + Environment.NewLine
+                        + $"Your final result was: {player.CorrectAnswers} / {player.ListOfQuestionIds
+                            .Trim()
+                            .Split(' ')
+                            .Select(int.Parse)
+                            .ToList()
+                            .Count}"
+                        , null);
                 }
                 
                 if (question is QuestionCardModel questionCard)
@@ -147,16 +161,21 @@ namespace Web_App.Server.Services
                     return (false, "Player does not exist in the database.");
                 }
 
-                string correctOrIncorrect = "";
+                if (question == null)
+                {
+                    return (false, "Question does not exist in the database. Have you already answered all your questions?");
+                }
+
+                string correctOrIncorrectString = "";
 
                 if (question.CheckQuestionAnswer(playerAnswer) != 0)
                 {
                     player.CorrectAnswers++;
-                    correctOrIncorrect = "Correct! ";
+                    correctOrIncorrectString = "Correct! ";
                 }
                 else
                 {
-                    correctOrIncorrect = "Incorrect. ";
+                    correctOrIncorrectString = "Incorrect. ";
                 }
 
                 List<int> listOfQuestionIds = player.ListOfQuestionIds
@@ -173,15 +192,20 @@ namespace Web_App.Server.Services
                 }
                 else
                 {
-                    return (true, correctOrIncorrect
+                    player.NumberOfCurrentQuestion = 0;
+                }
+
+                quizContext.SaveChanges();
+
+                if (index >= listOfQuestionIds.Count)
+                {
+                    return (true, correctOrIncorrectString
                         + "You have now answered all the questions. Thanks for playing!" 
                         + Environment.NewLine
                         + $"Your final result was: {player.CorrectAnswers} / {listOfQuestionIds.Count}");
                 }
 
-                quizContext.SaveChanges();
-
-                return (false, correctOrIncorrect);
+                return (true, correctOrIncorrectString);
             }
             catch (Exception ex)
             {

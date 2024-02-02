@@ -6,8 +6,8 @@ namespace Web_App.Server.Handlers.Questions
 {
     public class CheckAnswerCommand : IRequest<CheckAnswerCommandReponse>
     {
-        public string PlayerName { get; set; }
-        public string PlayerAnswer { get; set; }
+        public required string PlayerName { get; set; }
+        public required string PlayerAnswer { get; set; }
     }
 
     public class CheckAnswerCommandHandler : IRequestHandler<CheckAnswerCommand, CheckAnswerCommandReponse>
@@ -38,8 +38,8 @@ namespace Web_App.Server.Handlers.Questions
 
     public class CheckAnswerCommandReponse
     {
-        public string AnswerMessage { get; set; }
+        public string? AnswerMessage { get; set; }
         public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

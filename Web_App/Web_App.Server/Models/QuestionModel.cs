@@ -12,8 +12,6 @@ namespace Web_App.Server.Models
         }
         public int CheckQuestionAnswer(string answer)
         {
-            int pointsGained = 0;
-
             string[] splitStr = GetCorrectAnswer().Split(' ');
 
             bool answerTrue = false;
@@ -37,5 +35,4 @@ namespace Web_App.Server.Models
             return 0;
         }
     }
-
 }

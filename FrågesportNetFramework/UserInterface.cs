@@ -1,7 +1,4 @@
 ﻿using QuizLibrary;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.Metrics;
-using System.Net.NetworkInformation;
 
 namespace FrågesportNetFramework
 {
@@ -40,9 +37,26 @@ namespace FrågesportNetFramework
                 ifEmptyBreakLook = handler.PerformAction(answer)[0][0];
                 if (answer == "1")
                 {
-                    Console.WriteLine(ifEmptyBreakLook + Environment.NewLine);                    
-                    for (int i = 0; i < handler.TotalNumberOfQuestions; i++)
-                    {                        
+                    //Use API to initialize the quiz. Has to happen in InterfaceHandler.
+                    Console.WriteLine(Environment.NewLine 
+                        + handler.InitializeQuizInstructions());
+
+                    string playerName = DoWhileMethod(0);
+                    int playerNumberOfQuestions = Convert.ToInt32(DoWhileMethod(0));
+
+                    Console.WriteLine(handler.InitializeQuiz(playerName, playerNumberOfQuestions));
+
+                    throw new Exception();
+
+
+
+
+
+
+
+                    Console.WriteLine(ifEmptyBreakLook + Environment.NewLine);
+                    for (int i = 0; i < handler.TotalNumberOfQuestions; i++) // TotalNumberOfQuestions is never to be used.
+                    {
                         QuestionCard quizQuestion = handler.GetQuestion(i);
                         List<string> quizQuestionDetails = handler.GetQuestionDetails(quizQuestion);
                         foreach (string item in quizQuestionDetails)

@@ -866,3 +866,46 @@ question number upon initializing the quiz.
 I've split the GetQuestionWithOrWithoutAnswer (or whatever it was called) in QuizService into three methods now. It
 makes the code more clear, simply put. This means that I also added another MediatR command, so now there's one for
 retrieving a question and one for checking an answer and retrieving a response as a string based on the answer.
+
+2024-02-02
+-----------
+There are a couple of warnings that I'm looking at. They bother me. Warnings are warnings - no good. I'd prefer to get
+rid of them, and I know of a way, adding '?' to the data type. I'm not sure if this is good practice or not, though. 
+It might make the program less efficient, I'll have to look into it a bit more before deciding on any approach.
+
+I've fixed most of the warnings, but two remain. One I've decided to ignore after some research and thought, and the
+other I will fix in time. Since it involves interaction with the database - the warning is regarding a nullable value
+that is found in the SQL database, it might cause some database errors. I don't really know, but I'll be wary of it.
+
+When testing the quiz, I came across an interesting problem. Getting each question and checking a correct answer
+works properly, but I ran into another issue as well. This one was a quick fix - all I needed to do was move the code
+`quizContext.SaveChanges();` so that it runs regardless of whether the player just finished the quiz or not. The other
+problem, on the other hand, seems a little more interesting. So, when the player has finished the quiz, they should no
+longer be able to retrieve any questions. However, to avoid errors, I do not increment 'numberOfCurrentQuestion' when
+the player finishes the quiz. This, in turn, means that any repeated attempts at getting a question after finishing
+the quiz will always return the last question.
+
+Now, the errors above and some others are fixed. Now, when the player finishes the quiz, they cannot retrieve a question.
+Instead, they will be asked to initiate the quiz in order to play again. Also, I made it so that the player's final
+score is returned on each consecutive attempt at retrieving a question (their final result is also returned upon 
+quiz completion). Some testing later, all seems to be in order.
+
+Everything seems to work well, I can even select a number of questions. When writing this, I thought to myself 
+'Hm, but what happens if the player chooses a number that is smaller than or larger than the minimum/maximum amount
+of questions that are in the quiz?'. I'd apparently already thought about this before - the quiz won't initialize if
+you do this. Instead, a message stating something along the lines of 'please format your request properly' is returned.
+
+Hm. You can play the quiz through the API now. I'll kind of just ignore question creation, modification, removal for now.
+That's a problem for a later time, I'll prioritize making it possible to play the quiz using the API for now. Both the
+command-line based project and the desktop project use InterfaceHandler, so if I change InterfaceHandler to use the
+API, both of those should work. Then it's just the React application left.
+
+Alas, I have run into a big problem. I'm trying to use a HTTP GET request to initialize the quiz with the 
+InitializeQuiz() method in QuizController. However, it is currently not working. The HTTP client seems to be disposed
+(I'm not fully certain of the meaning, only vaguely), as I'm getting the following error message: 
+```chsarp
+Exception: Cannot access a disposed object.
+Object name: 'System.Net.Http.HttpClient'.
+System.Threading.Tasks.Task`1[System.String]
+```
+So that's not good. 

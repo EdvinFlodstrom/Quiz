@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
+using static System.Net.WebRequestMethods;
 
 namespace QuizLibrary
 {
@@ -19,6 +20,7 @@ namespace QuizLibrary
         int totalNumberOfquestions;
         string answerIsNullString = ("Please verify that you entered a valid answer."
                     + Environment.NewLine);
+        string apiUrl = "https://localhost:7140/api/quiz/";
         public string AnswerIsNullString
         {
             get
@@ -246,9 +248,44 @@ namespace QuizLibrary
 
             return resultString;
         }
+        public string InitializeQuizInstructions()
+        {
+            return "Time to initialize the quiz! You may either create a new user, or choose an existing one. " +
+                "Please enter a name, and the amount of questions you would like.";
+        }
+        public async Task<string> InitializeQuiz(string playerName, int numberOfQuestions)
+        {
+            apiUrl += "initquiz" + "/" + playerName + "/" + numberOfQuestions.ToString();
+
+            using (httpClient)
+            {
+                try
+                {
+                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return await response.Content.ReadFromJsonAsync<string>();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode}");
+                        return response.StatusCode.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception: {ex.Message}");
+                    return ex.Message;
+                }
+            }
+
+
+            return null;
+        }
         public async Task<List<string>> LogInstructions()
         {
-            string apiUrl = "https://localhost:7140/api/quiz/instructions";
+            apiUrl += "instructions";
 
             using (httpClient)
             {
@@ -263,21 +300,22 @@ namespace QuizLibrary
                     else
                     {
                         Console.WriteLine($"Error: {response.StatusCode}");
-                        return new List<string>();
+                        return null;
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Exception: {ex.Message}");
-                    return new List<string>();
+                    return null;
                 }
             }
         }
         public List<List<string>> PerformAction(string answer)
         {
+            //TODO fix this
             List<List<string>> listOfInstructions = new List<List<string>>();
-            PrepareQuiz();
-            totalNumberOfquestions = questionCards.Count;
+            //PrepareQuiz();
+            //totalNumberOfquestions = questionCards.Count;
             if (answer == "1")
             {
                 return new List<List<string>> { new List<string> { "Welcome to the quiz! You will be presented with a question, for which you may submit an answer." } };
@@ -318,6 +356,7 @@ namespace QuizLibrary
                 return (new List<List<string>> { new List<string> { "Please enter a number in the range 1-5." } });
             }
         }
+        /*
         private void PrepareQuiz()
         {
             //TODO fix quiz
@@ -327,6 +366,7 @@ namespace QuizLibrary
             totalAnswers = 0;
             deckLength = questionCards.Count;
         }
+        */
         public void RemoveOrModifyQuestion(string numberOfQuestion, string modifiedQuestion = "")
         {
             int intNumberOfQuestion = Convert.ToInt32(numberOfQuestion);

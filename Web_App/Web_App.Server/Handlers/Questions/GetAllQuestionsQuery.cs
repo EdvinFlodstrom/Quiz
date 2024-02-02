@@ -25,7 +25,15 @@ namespace Web_App.Server.Handlers.Questions
             try
             {
                 response.Questions = await quizService.GetAllQuestions();
-                response.Success = true;
+
+                if (response.Questions == null)
+                {
+                    response.Success = false;                    
+                }
+                else
+                {
+                    response.Success = true;
+                }
             }
             catch (Exception Ex)
             {
@@ -39,8 +47,8 @@ namespace Web_App.Server.Handlers.Questions
     
     public class GetAllQuestionsQueryResponse
     {
-        public List<QuestionModel> Questions { get; set; }
+        public List<QuestionModel>? Questions { get; set; }
         public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }
