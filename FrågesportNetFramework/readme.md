@@ -909,3 +909,27 @@ Object name: 'System.Net.Http.HttpClient'.
 System.Threading.Tasks.Task`1[System.String]
 ```
 So that's not good. 
+
+2024-02-06
+-----------
+I think I've fixed the above issue, I figured from the start that the problem was the 'using' statement. As I expected,
+the HttpClient was being disposed after the first using statement, and since InterfaceHandler was trying to use the 
+same HttpClient for each API request, it was trying to use a disposed client. So, the easy fix was to remove 'using' 
+and implement proper HttpClient disposing afterwards.
+
+I've run into another issue that I can't seem to solve. I'm attempting to return a string 'Quiz has been initialized...'
+upon initializing the quiz. The initialization itself is successful - I can see the new column in SQL Server Management
+Studio. But an error is being thrown when I'm trying to return the string that is returned from the API, like this:
+`return await response.Content.ReadFromJsonAsync<string>();`. However, I'm getting this error message: 
+`Exception: 'Q' is an invalid start of a value.`, and I don't know why.
+
+Some time later, I've changed respective methods in QuizService, InitializeQuizCommand, and QuizController. Now, 
+QuizController doesn't return the string, but a property containing the string (the property replaced a previous property
+in InitializeQuizCommand). Still, text is returned rather than JSON. And now I *really* don't know why.
+
+After far more pain and debugging that I would like to admit, I've got it working at last. I had to resort to strategies
+I would consider a little low, but it works. I changed the data type of the property mentioned above from string to 
+List<string>. It works, and successfully converts to a JSON object as I was hoping.
+* https://stackoverflow.com/questions/36698677/why-is-this-httpclient-usage-giving-me-an-cannot-access-a-disposed-object-err
+* https://www.aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/
+

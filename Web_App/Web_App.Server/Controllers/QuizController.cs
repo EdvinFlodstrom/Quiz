@@ -29,11 +29,10 @@ namespace Web_App.Server.Controllers
                 };
 
                 InitializeQuizCommandResponse quizInitializedSuccessfully = await mediator.Send(command);
-
+                
                 return quizInitializedSuccessfully.Success == true
-                    ? Ok($"Quiz has been initialized successfully for player {playerName}.")
-                    : StatusCode(500, $"{quizInitializedSuccessfully.ErrorMessage} Player was not added and no quiz was initialized. " +
-                    "Please make sure that the player name is correctly formatted, and that you chose an appropriate amount of questions.");
+                    ? Ok(quizInitializedSuccessfully.QuizInitializedDetails)
+                    : StatusCode(500, quizInitializedSuccessfully.QuizInitializedDetails + quizInitializedSuccessfully.ErrorMessage);
             }
             catch (Exception ex)
             {

@@ -38,7 +38,7 @@ namespace Web_App.Server.Services
                 return null;
             }
         }
-        public async Task<bool> InitializeQuiz(string playerName, int numberOfQuestions)
+        public async Task<(bool quizInitializedSuccessfully, List<string> quizInitializedDetails)> InitializeQuiz(string playerName, int numberOfQuestions)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace Web_App.Server.Services
                     stringOfSpaceSeparatedQuestionIds += listOfQuestionIdsOfQuestions[randomIndex].ToString() + " ";
                     listOfQuestionIdsOfQuestions.RemoveAt(randomIndex);
                 }
-                
+
                 List<int> listOfQuestionIds = stringOfSpaceSeparatedQuestionIds
                     .Trim()
                     .Split(' ')
@@ -89,12 +89,13 @@ namespace Web_App.Server.Services
                     quizContext.SaveChanges();
                 }
 
-                return true;
+                return (true, new List<string> { $"Quiz has been initialized successfully for player {playerName}."});
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-                return false;
+                return (false, new List<string> { $"{ex.Message} Player was not added and no quiz was initialized. " +
+                    "Please make sure that the player name is correctly formatted, and that you chose an appropriate amount of questions." });
             }
         }
         private Task<(PlayerStatisticsModel? player, QuestionModel? question)> GetPlayerAndQuestion(string playerName)

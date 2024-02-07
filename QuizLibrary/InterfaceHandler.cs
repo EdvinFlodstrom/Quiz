@@ -20,7 +20,7 @@ namespace QuizLibrary
         int totalNumberOfquestions;
         string answerIsNullString = ("Please verify that you entered a valid answer."
                     + Environment.NewLine);
-        string apiUrl = "https://localhost:7140/api/quiz/";
+        string apiUrlTemplate = "https://localhost:7140/api/quiz/";
         public string AnswerIsNullString
         {
             get
@@ -147,6 +147,10 @@ namespace QuizLibrary
                 Environment.NewLine +
                 GetCorrectAndTotalAnswers();
         }
+        public void Dispose()
+        {           
+            httpClient.Dispose();
+        }
         private string DoWhileFunction(string answer, List<string> mcsaOptions, int highestAllowedNumber = 0)
         {
             int intAnswer = 0;
@@ -253,61 +257,52 @@ namespace QuizLibrary
             return "Time to initialize the quiz! You may either create a new user, or choose an existing one. " +
                 "Please enter a name, and the amount of questions you would like.";
         }
-        public async Task<string> InitializeQuiz(string playerName, int numberOfQuestions)
+        public async Task<List<string>> InitializeQuiz(string playerName, int numberOfQuestions)
         {
-            apiUrl += "initquiz" + "/" + playerName + "/" + numberOfQuestions.ToString();
+            string apiUrl = apiUrlTemplate + "initquiz" + "/" + playerName + "/" + numberOfQuestions.ToString();
 
-            using (httpClient)
+            try
             {
-                try
-                {
-                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+                HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
 
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return await response.Content.ReadFromJsonAsync<string>();
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Error: {response.StatusCode}");
-                        return response.StatusCode.ToString();
-                    }
-                }
-                catch (Exception ex)
+                if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Exception: {ex.Message}");
-                    return ex.Message;
+                    return await response.Content.ReadFromJsonAsync<List<string>>();
+                }
+                else
+                {
+                    Console.WriteLine($"Error: {response.StatusCode}");
+                    return new List<string> { response.StatusCode.ToString() };
                 }
             }
-
-
-            return null;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                return new List<string> { ex.Message };
+            }
         }
         public async Task<List<string>> LogInstructions()
         {
-            apiUrl += "instructions";
-
-            using (httpClient)
+            string apiUrl = apiUrlTemplate + "instructions";
+            
+            try
             {
-                try
-                {
-                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+                HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
 
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return await response.Content.ReadFromJsonAsync<List<string>>();
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Error: {response.StatusCode}");
-                        return null;
-                    }
-                }
-                catch (Exception ex)
+                if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Exception: {ex.Message}");
+                    return await response.Content.ReadFromJsonAsync<List<string>>();
+                }
+                else
+                {
+                    Console.WriteLine($"Error: {response.StatusCode}");
                     return null;
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                return null;
             }
         }
         public List<List<string>> PerformAction(string answer)

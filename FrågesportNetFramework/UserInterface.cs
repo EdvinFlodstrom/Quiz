@@ -22,10 +22,15 @@ namespace FrågesportNetFramework
 
             return answer;
         }
-        public void Run()
+        public async void Run()
         {
             string? answer;
             string ifEmptyBreakLook = "";
+
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                handler.Dispose();
+            };
 
             do
             {
@@ -44,9 +49,13 @@ namespace FrågesportNetFramework
                     string playerName = DoWhileMethod(0);
                     int playerNumberOfQuestions = Convert.ToInt32(DoWhileMethod(0));
 
-                    Console.WriteLine(handler.InitializeQuiz(playerName, playerNumberOfQuestions));
+                    foreach (string item in await handler.InitializeQuiz(playerName, playerNumberOfQuestions))
+                    {
+                        Console.WriteLine(Environment.NewLine 
+                            + item);
+                    }
 
-                    throw new Exception();
+                    
 
 
 

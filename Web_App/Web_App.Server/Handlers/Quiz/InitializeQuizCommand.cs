@@ -23,8 +23,7 @@ namespace Web_App.Server.Handlers.Quiz
 
             try
             {
-                response.QuizInitializedSuccessfully = await quizService.InitializeQuiz(request.PlayerName, request.NumberOfQuestions);
-                response.Success = response.QuizInitializedSuccessfully;
+                (response.Success, response.QuizInitializedDetails) = await quizService.InitializeQuiz(request.PlayerName, request.NumberOfQuestions);                
             }
             catch (Exception ex)
             {
@@ -38,7 +37,7 @@ namespace Web_App.Server.Handlers.Quiz
 
     public class InitializeQuizCommandResponse
     {
-        public bool QuizInitializedSuccessfully { get; set; }
+        public List<string>? QuizInitializedDetails { get; set; }
         public bool Success { get; set; }
         public string? ErrorMessage { get; set; }
     }
