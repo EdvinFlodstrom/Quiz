@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
+using Newtonsoft.Json;
+using Web_App.Server.Models;
 using static System.Net.WebRequestMethods;
 
 namespace QuizLibrary
@@ -73,8 +75,48 @@ namespace QuizLibrary
             }
             return combinedString;
         }
-        private string CheckQuestionAnswer(string answer)
+        /*
+        private async Task<string> CheckQuestionAnswer(string playerName, string playerAnswer)
         {
+            string apiUrl = apiUrlTemplate + "takequiz" + playerName + playerAnswer;
+
+            try
+            {
+                HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+                string answerReplyString = "";
+                bool continuePlaying;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<string>(jsonResponse);
+
+                    throw new Exception();
+                }
+                else
+                {
+                    continuePlaying = false;
+                }
+
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<List<string>>();
+                }
+                else
+                {
+                    Console.WriteLine($"Error: {response.StatusCode}");
+                    return new List<string> { response.StatusCode.ToString() };
+                }
+                
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            
             QuestionCard card = questionCards[totalAnswers++];
 
             int pointsGained = card.CheckQuestionAnswer(answer);
@@ -86,7 +128,9 @@ namespace QuizLibrary
                 return "Incorrect.";
             }
             return "Correct!";
+            
         }
+        */
         public int CheckIfQuestionIsMcsa(QuestionCard quizQuestion)
         {
             if (quizQuestion.McsaOptions != null)
@@ -142,10 +186,14 @@ namespace QuizLibrary
         }
         public string DisplayCurrentQuizResults(string answer)
         {
+            return "temporary";
+
+            /*
             return CheckQuestionAnswer(answer) +
                 Environment.NewLine +
                 Environment.NewLine +
                 GetCorrectAndTotalAnswers();
+            */
         }
         public void Dispose()
         {           
@@ -227,8 +275,42 @@ namespace QuizLibrary
         {
             return questionCards[indexOfQuestion];
         }
-        public List<string> GetQuestionDetails(QuestionCard question)
+        public async Task<List<string>> GetQuestionDetails(string playerName)
         {
+            string apiUrl = apiUrlTemplate + "takequiz" + playerName;
+            List<string> questionDetails = new List<string>();
+
+            try
+            {
+                HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResult = await response.Content.ReadAsStringAsync();
+
+                    var question = JsonConvert.DeserializeObject<QuestionModel>(jsonResult);
+
+                    questionDetails.Add(question.QuestionText);
+
+                    if (question is MCSACardModel mcsaQuestion)
+                    {
+                        for (int i = 1; i <= 5; i++)
+                        {
+                            questionDetails.Add($"{i}. {mcsaQuestion}"); // Make it so that i is used for option1, option2 etc.
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                return new List<string> { ex.Message };
+            }
+
+
+
+
+            /*
             List<string> listOfQuestionDetails = new List<string>();
             listOfQuestionDetails.Add(question.Question);
             if (question.McsaOptions != null)
@@ -239,6 +321,7 @@ namespace QuizLibrary
                 }
             }
             return listOfQuestionDetails;
+            */
         }
         public string GetQuizResults()
         {

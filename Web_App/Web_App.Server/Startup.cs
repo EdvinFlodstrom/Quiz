@@ -2,7 +2,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 //TODO remove QuizLibrary - integrate it completely into the API
 //TODO make sure that the API ALWAYS starts before e.g. the console app. If API doesn't have time to start, console app will break.
-using QuizLibrary;
 using System.Reflection;
 using Web_App.Server.Data;
 using Web_App.Server.Services;
@@ -29,8 +28,6 @@ namespace Web_App.Server
             {
                 client.BaseAddress = new Uri("https://localhost:7140/api/quiz");
             });
-
-            services.AddScoped<InterfaceHandler>();
 
             services.AddScoped<QuizService>();
 

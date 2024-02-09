@@ -933,3 +933,7 @@ List<string>. It works, and successfully converts to a JSON object as I was hopi
 * https://stackoverflow.com/questions/36698677/why-is-this-httpclient-usage-giving-me-an-cannot-access-a-disposed-object-err
 * https://www.aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/
 
+2024-02-09
+-----------
+Today went fine, no real errors this time. I didn't make a ton of progress, but the lesson was shorter this time.
+I don't have much to say, then, for once. I'm currently working on getting each question in 'InterfaceHandler.cs'.

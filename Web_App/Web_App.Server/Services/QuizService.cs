@@ -112,7 +112,7 @@ namespace Web_App.Server.Services
             return Task.FromResult<(PlayerStatisticsModel? player, QuestionModel? question)>((player, question));
         }
         public async Task<(bool, string, QuestionModel?)> GetQuestion(string playerName)
-        {
+        { // Use the first bool to automatically exit loops in various interfaces.
             try
             {
                 var (player, question) = await GetPlayerAndQuestion(playerName);

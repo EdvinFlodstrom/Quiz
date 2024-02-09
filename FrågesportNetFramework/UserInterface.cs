@@ -33,7 +33,7 @@ namespace FrågesportNetFramework
             };
 
             do
-            {
+            {                
                 foreach (string item in handler.LogInstructions().Result)
                 {
                     Console.WriteLine(item);
@@ -62,7 +62,7 @@ namespace FrågesportNetFramework
 
 
 
-
+                    /*
                     Console.WriteLine(ifEmptyBreakLook + Environment.NewLine);
                     for (int i = 0; i < handler.TotalNumberOfQuestions; i++) // TotalNumberOfQuestions is never to be used.
                     {
@@ -89,6 +89,7 @@ namespace FrågesportNetFramework
                         } while(answer == handler.AnswerIsNullString);
                     }
                     Console.WriteLine(handler.GetQuizResults());
+                    */
                 }
                 else if (answer != "5")
                 {
