@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using Web_App.Server.Models;
-using Web_App.Server.Handlers.Quiz;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Web_App.Server.Handlers.Questions;
+using Web_App.Server.Handlers.Quiz;
+using Web_App.Server.Models;
 
 namespace Web_App.Server.Controllers
 {
@@ -29,7 +29,7 @@ namespace Web_App.Server.Controllers
                 };
 
                 InitializeQuizCommandResponse quizInitializedSuccessfully = await mediator.Send(command);
-                
+
                 return quizInitializedSuccessfully.Success == true
                     ? Ok(quizInitializedSuccessfully.QuizInitializedDetails)
                     : StatusCode(500, quizInitializedSuccessfully.QuizInitializedDetails + quizInitializedSuccessfully.ErrorMessage);
@@ -47,7 +47,7 @@ namespace Web_App.Server.Controllers
                 var query = new GetAllQuestionsQuery();
                 GetAllQuestionsQueryResponse questions = await mediator.Send(query);
 
-                return questions.Success == true 
+                return questions.Success == true
                     ? Ok(questions.Questions)
                     : StatusCode(500, questions.ErrorMessage);
             }
@@ -67,8 +67,8 @@ namespace Web_App.Server.Controllers
                 };
 
                 GetQuestionCommandResponse question = await mediator.Send(request);
-                
-                return question.Success == true 
+
+                return question.Success == true
                     ? Ok(question.Question)
                     : StatusCode(500, question.AnswerMessage + question.ErrorMessage);
             }
@@ -76,7 +76,7 @@ namespace Web_App.Server.Controllers
             {
                 return StatusCode(500, "Internal Server Error: " + ex);
             }
-        }        
+        }
         [HttpGet("takequiz/{playerName}/{playerAnswer}")]
         public async Task<ActionResult<QuestionModel>> CheckQuestionAnswer(string playerName, string playerAnswer)
         {

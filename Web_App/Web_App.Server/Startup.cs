@@ -6,53 +6,54 @@ using System.Reflection;
 using Web_App.Server.Data;
 using Web_App.Server.Services;
 
-namespace Web_App.Server
+namespace Web_App.Server;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
+        Configuration = configuration;
+    }
+
+    public IConfiguration Configuration { get; }
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
+
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
+        services.AddAutoMapper(typeof(MappingProfile));
+
+        services.AddHttpClient("ApiClient", client =>
         {
-            Configuration = configuration;
-        }
+            client.BaseAddress = new Uri("https://localhost:7140/api/quiz");
+        });
 
-        public IConfiguration Configuration { get; }
+        services.AddScoped<QuizService>();
 
-        public void ConfigureServices(IServiceCollection services)
+        services.AddDbContext<QuizContext>(options =>
         {
-            services.AddControllers();
-            services.AddEndpointsApiExplorer();
+            options.UseSqlServer(Environment.GetEnvironmentVariable("QuizConnection"));
+        });
+    }
 
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
 
-            services.AddHttpClient("ApiClient", client =>
-            {
-                client.BaseAddress = new Uri("https://localhost:7140/api/quiz");
-            });
+        app.UseRouting();
 
-            services.AddScoped<QuizService>();
+        app.UseHttpsRedirection();
 
-            services.AddDbContext<QuizContext>(options =>
-            {
-                options.UseSqlServer(Environment.GetEnvironmentVariable("QuizConnection"));
-            });
-        }
+        app.UseAuthorization();
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {           
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
-
-            app.UseRouting();
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-                endpoints.MapFallbackToFile("/index.html");
-            });
-        }
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+            endpoints.MapFallbackToFile("/index.html");
+        });
     }
 }

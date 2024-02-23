@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using AutoMapper;
+using System.Diagnostics;
 using Web_App.Server.Data;
+using Web_App.Server.DTOs;
 using Web_App.Server.Models;
 
 namespace Web_App.Server.Services
@@ -8,10 +10,12 @@ namespace Web_App.Server.Services
     {
         private readonly Random rnd = new Random();
         private readonly QuizContext quizContext;
-        public QuizService(QuizContext quizContext)
+        private readonly IMapper _mapper;
+        public QuizService(QuizContext quizContext, IMapper mapper)
         {
             this.quizContext = quizContext;
-        }        
+            _mapper = mapper;
+        }
         public Task<List<string>> GetInitialInstructions()
         {
             return Task.FromResult(new List<string>
@@ -32,7 +36,7 @@ namespace Web_App.Server.Services
 
                 return Task.FromResult(questions);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex);
                 return null;
@@ -89,7 +93,7 @@ namespace Web_App.Server.Services
                     quizContext.SaveChanges();
                 }
 
-                return (true, new List<string> { $"Quiz has been initialized successfully for player {playerName}."});
+                return (true, new List<string> { $"Quiz has been initialized successfully for player {playerName}." });
             }
             catch (Exception ex)
             {
@@ -111,8 +115,8 @@ namespace Web_App.Server.Services
 
             return Task.FromResult<(PlayerStatisticsModel? player, QuestionModel? question)>((player, question));
         }
-        public async Task<(bool, string, QuestionModel?)> GetQuestion(string playerName)
-        { // Use the first bool to automatically exit loops in various interfaces.
+        public async Task<(bool, string, QuestionDto?)> GetQuestion(string playerName)
+        { // Use the first bool to automatically exit loops in various interfaces - when no questions are left.
             try
             {
                 var (player, question) = await GetPlayerAndQuestion(playerName);
@@ -133,17 +137,14 @@ namespace Web_App.Server.Services
                             .Count}"
                         , null);
                 }
-                
-                if (question is QuestionCardModel questionCard)
-                {
-                    questionCard.RequiredWords = null;
-                }
-                else if (question is MCSACardModel mcsaCard)
-                {
-                    mcsaCard.CorrectOptionNumber = 0;
-                }
+       
+                var questionDto = question is QuestionCardModel
+                    ? _mapper.Map<QuestionDto>(question)
+                    : question is MCSACardModel mcsaCard
+                    ? _mapper.Map<MCSACardDto>(mcsaCard)
+                    : null;                
 
-                return (true, "Success.", question);                
+                return (true, "Success.", questionDto);
             }
             catch (Exception ex)
             {
@@ -201,7 +202,7 @@ namespace Web_App.Server.Services
                 if (index >= listOfQuestionIds.Count)
                 {
                     return (true, correctOrIncorrectString
-                        + "You have now answered all the questions. Thanks for playing!" 
+                        + "You have now answered all the questions. Thanks for playing!"
                         + Environment.NewLine
                         + $"Your final result was: {player.CorrectAnswers} / {listOfQuestionIds.Count}");
                 }

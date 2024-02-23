@@ -937,3 +937,55 @@ List<string>. It works, and successfully converts to a JSON object as I was hopi
 -----------
 Today went fine, no real errors this time. I didn't make a ton of progress, but the lesson was shorter this time.
 I don't have much to say, then, for once. I'm currently working on getting each question in 'InterfaceHandler.cs'.
+
+2024-02-23
+-----------
+Long time no see, hm. Been a while since I last worked on this project, and it'll be a while between each time from
+now on. This is due to my internship having started. I'm not quite sure why I'm even documenting this, since I'm 
+likely the only one reading it. Anyhow, I want to implement Data Transfer Objects in my API. I believe this will be
+an infinitely much better approach than nullifying the answer before returning it, since using a DTO means not returning
+it in the first place. I've not worked much with DTOs before - mainly yesterday. So, even though I'm fairly sure I know
+where, when and of what I need to implement DTOs of, I'll still need to research the subject for a second or two.
+
+Good news and bad news. For the former first: I've implemented a QuestionDto class that works. I can now return only
+the question and the question type. No more question id and answer. Though I immediately noticed a flaw: MCSA questions
+do not return options. Should be a relatively straightforward fix, though. I could add a MCSACardDto that inherits from
+QuestionDto, I suppose.
+
+Come to think of it, I should probably use a mapper for the MCSACardDto class. If successful, it would look a lot 
+better, I think. Not sure if I'll actually be able to implement one, though.
+
+Hm, so I implemented the mapper using AutoMapper. And it was going well, then I ran into this issue:
+```chsarp
+if (question is QuestionCardModel questionCard) 
+    {
+        var questionDto = _mapper.Map<QuestionDto>(question);
+    }
+    else if (question is MCSACardModel mcsaCard)
+    {
+        var questionDto = _mapper.Map<MCSACardDto>(mcsaCard);
+    }
+```
+questionDto is not accessible outside the scope of the 'if' statement, which is a problem. And I could not move the
+object declaration 'var questionDto' to the outside, since it has to be given a type immediately. So, I pulled a 
+one-liner instead:
+```chsarp
+var questionDto = question is QuestionCardModel
+    ? _mapper.Map<QuestionDto>(question)
+    : question is MCSACardModel mcsaCard
+    ? _mapper.Map<MCSACardDto>(mcsaCard)
+    : null;
+```
+Sure, it's not all in one line, but it *can* be. I formatted it to make it look nicer and appear more readable. I figured 
+the following may not be too easy to comprehend:
+`var questionDto = question is QuestionCardModel ? _mapper.Map<QuestionDto>(question) : question is MCSACardModel mcsaCard ? _mapper.Map<MCSACardDto>(mcsaCard) : null;`
+It works, so that's cool. I grew a little suspicious when I received four MCSA questions in a row during testing 
+(5/10 are MCSA), but apparently it was just a coincidence. The fifth question turned out to be a regular QuestionCard.
+So, I've implemented a DTO that automatically maps using AutoMapper, so that the answer of the question is available
+within the API but is never returned to the user. Good luck cheating now, I daresay. Let's pretend it's not possible to 
+Google the answers. It's not like I can stop that very easily.
+
+Side note: I did not have to adjust QuizController in the slightest - all that required changing to implement the 
+DTO and AutoMapper was to create 'MappingProfile.cs', register it in Startup.cs, inject it into the service class 
+using DI, and done. I changed the data type in 'GetQuestionCommand.cs', and adjusted some code in 'QuizService.cs'. 
+Then it all worked flawlessly. Very cool implementation, indeed.

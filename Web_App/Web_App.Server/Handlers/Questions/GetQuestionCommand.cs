@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Web_App.Server.DTOs;
 using Web_App.Server.Models;
 using Web_App.Server.Services;
 
@@ -41,7 +41,7 @@ namespace Web_App.Server.Handlers.Questions
 
     public class GetQuestionCommandResponse
     {
-        public QuestionModel? Question { get; set; }
+        public QuestionDto? Question { get; set; }
         public string? AnswerMessage { get; set; }
         public bool Success { get; set; }
         public string? ErrorMessage { get; set; }
