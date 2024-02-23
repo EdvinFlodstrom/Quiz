@@ -1,0 +1,14 @@
+.instruction-button {
+    padding: 1em 2em; /* Making the buttons larger */
+    margin-top: 2em;
+    background-color: #0367ab; /* Fitting color */
+    color: #fff7f7; /* Text color */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Hover effect */
+}
+
+.instruction-button:hover {
+    background-color: #5f9bc4; /* Hover color */
+}

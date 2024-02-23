@@ -10,7 +10,7 @@ const QuizPage = () => {
     return (
         <>
         <h1>Quiz</h1>
-        <InitialInstructions></InitialInstructions>
+        <InitialInstructions /> // TODO : Adjust rendering of components so that TakeQuiz isn't rendered below InitialInstructions.
         </>
       );
 };

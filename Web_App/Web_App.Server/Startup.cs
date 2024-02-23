@@ -37,6 +37,16 @@ public class Startup
         {
             options.UseSqlServer(Environment.GetEnvironmentVariable("QuizConnection"));
         });
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy",
+                builder => builder
+                    .WithOrigins("http://localhost:5500", "http://localhost:3000")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -45,6 +55,8 @@ public class Startup
         app.UseStaticFiles();
 
         app.UseRouting();
+
+        app.UseCors("CorsPolicy");
 
         app.UseHttpsRedirection();
 
