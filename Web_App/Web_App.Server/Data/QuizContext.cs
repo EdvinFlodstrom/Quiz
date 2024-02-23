@@ -2,7 +2,7 @@
 using Web_App.Server.Models;
 
 namespace Web_App.Server.Data
-{    
+{
     public class QuizContext : DbContext
     {
         public DbSet<QuestionModel> Questions { get; set; }
@@ -18,7 +18,7 @@ namespace Web_App.Server.Data
             modelBuilder.Entity<QuestionModel>()
                 .ToTable("Questions")
                 .HasKey(q => q.QuestionId);
-            
+
             //Configurations for QuestionCard
             modelBuilder.Entity<QuestionCardModel>()
                 .ToTable("QuestionCard");
@@ -28,7 +28,7 @@ namespace Web_App.Server.Data
                 .ToTable("MCSACard");
 
             //Configurations for PlayerStatistics
-            modelBuilder.Entity<PlayerStatisticsModel>()                
+            modelBuilder.Entity<PlayerStatisticsModel>()
                 .ToTable("PlayerStatistics")
                 .HasKey(p => p.PlayerName);
 

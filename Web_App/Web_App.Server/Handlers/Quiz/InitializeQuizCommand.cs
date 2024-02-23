@@ -23,7 +23,7 @@ namespace Web_App.Server.Handlers.Quiz
 
             try
             {
-                (response.Success, response.QuizInitializedDetails) = await quizService.InitializeQuiz(request.PlayerName, request.NumberOfQuestions);                
+                (response.Success, response.QuizInitializedDetails) = await quizService.InitializeQuiz(request.PlayerName, request.NumberOfQuestions);
             }
             catch (Exception ex)
             {

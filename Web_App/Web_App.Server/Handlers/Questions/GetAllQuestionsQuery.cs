@@ -1,6 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
-using System.Net;
 using Web_App.Server.Models;
 using Web_App.Server.Services;
 
@@ -8,7 +6,7 @@ namespace Web_App.Server.Handlers.Questions
 {
     public class GetAllQuestionsQuery : IRequest<GetAllQuestionsQueryResponse>
     {
-        
+
     }
 
     public class GetAllQuestionsQueryHandler : IRequestHandler<GetAllQuestionsQuery, GetAllQuestionsQueryResponse>
@@ -28,7 +26,7 @@ namespace Web_App.Server.Handlers.Questions
 
                 if (response.Questions == null)
                 {
-                    response.Success = false;                    
+                    response.Success = false;
                 }
                 else
                 {
@@ -44,7 +42,7 @@ namespace Web_App.Server.Handlers.Questions
             return response;
         }
     }
-    
+
     public class GetAllQuestionsQueryResponse
     {
         public List<QuestionModel>? Questions { get; set; }

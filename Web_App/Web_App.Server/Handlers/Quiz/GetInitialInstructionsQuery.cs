@@ -23,7 +23,7 @@ namespace Web_App.Server.Handlers.Quiz
                 response.Instructions = await quizService.GetInitialInstructions();
                 response.Success = true;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 response.ErrorMessage = ex.Message;
                 response.Success = false;

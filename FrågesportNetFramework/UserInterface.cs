@@ -33,7 +33,7 @@ namespace FrågesportNetFramework
             };
 
             do
-            {                
+            {
                 foreach (string item in handler.LogInstructions().Result)
                 {
                     Console.WriteLine(item);
@@ -43,7 +43,7 @@ namespace FrågesportNetFramework
                 if (answer == "1")
                 {
                     //Use API to initialize the quiz. Has to happen in InterfaceHandler.
-                    Console.WriteLine(Environment.NewLine 
+                    Console.WriteLine(Environment.NewLine
                         + handler.InitializeQuizInstructions());
 
                     string playerName = DoWhileMethod(0);
@@ -51,11 +51,11 @@ namespace FrågesportNetFramework
 
                     foreach (string item in await handler.InitializeQuiz(playerName, playerNumberOfQuestions))
                     {
-                        Console.WriteLine(Environment.NewLine 
+                        Console.WriteLine(Environment.NewLine
                             + item);
                     }
 
-                    
+
 
 
 
@@ -100,7 +100,7 @@ namespace FrågesportNetFramework
 
                     string questionType = "";
                     string question = "";
-                    string questionAnswer = "";                    
+                    string questionAnswer = "";
                     int numberOfQuestions;
                     string numberOfTargetedQuestion = "";
                     bool modifyAQuestion = false;
@@ -111,7 +111,7 @@ namespace FrågesportNetFramework
                     foreach (List<string> item in instructions)
                     {
                         if (int.TryParse(item[0], out numberOfQuestions)) //Evaluates to true ONLY if user wants to remove or modify a question.
-                        {                            
+                        {
                             if (instructions.Count > 2) //Happens if user chose to modify a question. More List<string> are returned to instructions if this is the case.
                             {
                                 modifyAQuestion = true;
@@ -124,13 +124,13 @@ namespace FrågesportNetFramework
                         }
                         if ((modifyAQuestion || removeAQuestion) && !hasTargetedAQuestion)
                         {
-                            List<string> listWithQuestionTargetingDetails = 
+                            List<string> listWithQuestionTargetingDetails =
                                 handler.GetListWithTargetQuestionDetails();
                             Console.WriteLine(listWithQuestionTargetingDetails[0]);
                             for (int i = 1; i <= item.Count; i++)
                             {
                                 Console.WriteLine(item[i - 1]);
-                            }                            
+                            }
                             Console.WriteLine(Environment.NewLine + listWithQuestionTargetingDetails[1]);
 
                             numberOfQuestions = handler.TotalNumberOfQuestions;
@@ -140,7 +140,7 @@ namespace FrågesportNetFramework
                             if (removeAQuestion)
                             {
                                 handler.RemoveOrModifyQuestion(numberOfTargetedQuestion);
-                                Console.WriteLine("Question was removed successfully.");                                
+                                Console.WriteLine("Question was removed successfully.");
                             }
                             else
                             {
@@ -149,11 +149,11 @@ namespace FrågesportNetFramework
                             }
                             continue;
                         }
-                        
+
                         //Here is where question creation ensues.
                         int highestAllowedNumber = 0;
                         if (questionType == "")
-                        {                           
+                        {
                             string readAnswer = "";
                             foreach (string subItem in item)
                             {
@@ -164,13 +164,13 @@ namespace FrågesportNetFramework
                                     highestAllowedNumber = 2;
                                     continue;
                                 }
-                                question = readAnswer;                                
+                                question = readAnswer;
                                 readAnswer = DoWhileMethod(highestAllowedNumber);
                                 questionType = readAnswer;
                                 Console.WriteLine();
                             }
                             readAnswer = DoWhileMethod(highestAllowedNumber);
-                            questionType = readAnswer;                            
+                            questionType = readAnswer;
                             questionType = handler.ConvertQuestionTypeNumberToString(questionType);
                             Console.WriteLine();
                         }
@@ -193,7 +193,7 @@ namespace FrågesportNetFramework
                                 {
                                     if (optionOrFullAnswer == handler.AnswerIsNullString)
                                     {
-                                        Console.WriteLine("Please enter a valid answer, and remember not to enter the same option twice." + 
+                                        Console.WriteLine("Please enter a valid answer, and remember not to enter the same option twice." +
                                             Environment.NewLine);
                                     }
                                     if (highestAllowedNumber != 0)
@@ -201,7 +201,7 @@ namespace FrågesportNetFramework
                                         Console.Write(i + ". ");
                                     }
                                     Console.Write(handler.GetAnswerFormat(0));
-                                    optionOrFullAnswer = "";                                    
+                                    optionOrFullAnswer = "";
                                     optionOrFullAnswer = Console.ReadLine();
                                     optionOrFullAnswer = handler.VerifyAnswer(optionOrFullAnswer, mcsaOptions: questionMcsaOptions);
                                 } while (optionOrFullAnswer == handler.AnswerIsNullString);
@@ -212,7 +212,7 @@ namespace FrågesportNetFramework
                                 }
                                 questionMcsaOptions.Add(optionOrFullAnswer);
                             }
-                            
+
                             if (highestAllowedNumber != 0)
                             {
                                 Console.Write(Environment.NewLine + "Please enter the correct answer for the question. " +
@@ -237,6 +237,6 @@ namespace FrågesportNetFramework
                 Console.WriteLine();
             } while (ifEmptyBreakLook != "");
             Console.Write("Closing application. Press any key.");
-        }        
+        }
     }
 }

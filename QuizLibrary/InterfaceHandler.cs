@@ -1,11 +1,6 @@
-﻿using System.Globalization;
-using System.Net.Http;
+﻿using Newtonsoft.Json;
 using System.Net.Http.Json;
-using System.Reflection.Metadata.Ecma335;
-using System.Text.Json;
-using Newtonsoft.Json;
 using Web_App.Server.Models;
-using static System.Net.WebRequestMethods;
 
 namespace QuizLibrary
 {
@@ -138,7 +133,7 @@ namespace QuizLibrary
                 return quizQuestion.McsaOptions.Count;
             }
             return 0;
-        }        
+        }
         public string ConvertQuestionTypeNumberToString(string questionTypeNumber)
         {
             if (questionTypeNumber == "1") //User answers 1 or 2 above to determine the question type. This here converts from number (string) to respective type, as a string.
@@ -149,7 +144,7 @@ namespace QuizLibrary
             {
                 return "MCSACard";
             }
-        }        
+        }
         public string CreateQuestion(string question, string questionType,
             string questionAnswer, List<string> questionMcsaOptions, bool modifyAQuestion = false)
         {
@@ -196,7 +191,7 @@ namespace QuizLibrary
             */
         }
         public void Dispose()
-        {           
+        {
             httpClient.Dispose();
         }
         private string DoWhileFunction(string answer, List<string> mcsaOptions, int highestAllowedNumber = 0)
@@ -307,7 +302,7 @@ namespace QuizLibrary
                 return new List<string> { ex.Message };
             }
 
-
+            throw new Exception();
 
 
             /*
@@ -367,7 +362,7 @@ namespace QuizLibrary
         public async Task<List<string>> LogInstructions()
         {
             string apiUrl = apiUrlTemplate + "instructions";
-            
+
             try
             {
                 HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
@@ -405,9 +400,9 @@ namespace QuizLibrary
 
                 return listOfInstructions;
             }
-            
+
             else if (answer == "3")
-            {                
+            {
                 listOfInstructions.Add(new List<string> { questionCards.Count.ToString() });
                 listOfInstructions.Add(GetAllQuestions());
 
@@ -427,8 +422,8 @@ namespace QuizLibrary
             else if (answer == "5")
             {
                 return new List<List<string>> { new List<string> { "" } };
-            } 
-            
+            }
+
             else
             {
                 return (new List<List<string>> { new List<string> { "Please enter a number in the range 1-5." } });
@@ -460,7 +455,7 @@ namespace QuizLibrary
                 }
             }
             manager.RemoveOrModifyQuestion(Convert.ToInt32(numberOfQuestion), modifiedQuestion);
-        }     
+        }
         public string VerifyAnswer(string answer, int highestAllowedNumber = 0, List<string>? mcsaOptions = null)
         {
             answer = DoWhileFunction(answer, mcsaOptions, highestAllowedNumber);
@@ -469,6 +464,6 @@ namespace QuizLibrary
                 return answerIsNullString;
             }
             return answer;
-        }        
+        }
     }
 }

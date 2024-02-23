@@ -1,7 +1,7 @@
-﻿using System.Net.Http;
+﻿using QuizLibrary;
+using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
-using QuizLibrary;
 
 namespace WPF_GUI_Question
 {
@@ -9,7 +9,7 @@ namespace WPF_GUI_Question
     /// Interaction logic for MainWindow.xaml
     /// </summary>  
     public partial class MainWindow : Window
-    {        
+    {
         InterfaceHandler handler = new InterfaceHandler(new HttpClient());
         List<Button> buttons = new List<Button>();
         QuestionCard quizQuestion;
@@ -28,7 +28,7 @@ namespace WPF_GUI_Question
         bool isModifyingQuestion = false;
         bool isRemovingQuestion = false;
         bool hasCreatedQuestion = false;
-        bool hasTargetedQuestion = false;        
+        bool hasTargetedQuestion = false;
         int numberOfCreatedOption = 1;
         int numberOfTargetedQuestion;
 
@@ -44,7 +44,7 @@ namespace WPF_GUI_Question
                 Option5Button
             });
 
-            InitialInstructions();           
+            InitialInstructions();
         }
         private void CheckAnswerAndPrepareNextAction(string answer)
         {
@@ -162,7 +162,7 @@ namespace WPF_GUI_Question
                         EnableOrDisableOptionButtons(true, false);
                     }
                     else
-                    {                        
+                    {
                         EnableOrDisableSubmitButtonAndBox(true);
                     }
                     indexOfCurrentQuestion++;
@@ -193,7 +193,7 @@ namespace WPF_GUI_Question
                     ListOfAllQuestions.Text += item + Environment.NewLine;
                 }
                 ListOfAllQuestions.Text += listWithTargetQuestionDetails[1];
-                ContinueButton.IsEnabled = false;                
+                ContinueButton.IsEnabled = false;
                 EnableOrDisableSubmitButtonAndBox(true);
             }
             else
@@ -217,7 +217,7 @@ namespace WPF_GUI_Question
                         return;
                     }
                     ListOfAllQuestions.Text = "";
-                    hasTargetedQuestion = true;                    
+                    hasTargetedQuestion = true;
                     if (isRemovingQuestion)
                     {
                         handler.RemoveOrModifyQuestion(QuestionAnswer.Text);
@@ -227,7 +227,7 @@ namespace WPF_GUI_Question
                     {
                         Instructions.Text = "Now, please create the question that will replace the previous one";
                         isCreatingQuestion = true;
-                    }                    
+                    }
                     EnableOrDisableSubmitButtonAndBox(false);
                     ContinueButton.IsEnabled = true;
                 }
@@ -237,8 +237,8 @@ namespace WPF_GUI_Question
                     EnableOrDisableSubmitButtonAndBox(false);
                     for (int i = 2; i < listWithDetailsOfQuestionActions[!isModifyingQuestion ? 0 : 2].Count; i++)
                     {
-                        buttons[i-2].Content = listWithDetailsOfQuestionActions[!isModifyingQuestion ? 0 : 2][i];
-                        buttons[i-2].IsEnabled = true;
+                        buttons[i - 2].Content = listWithDetailsOfQuestionActions[!isModifyingQuestion ? 0 : 2][i];
+                        buttons[i - 2].IsEnabled = true;
                     }
                     hasCreatedQuestion = true;
 
@@ -266,30 +266,30 @@ namespace WPF_GUI_Question
                             {
                                 mcsaOptions.Add(QuestionAnswer.Text);
                                 numberOfCreatedOption++;
-                            }                          
+                            }
                         }
 
                         questionAnswer = QuestionAnswer.Text;
                         QuestionAnswer.Clear();
 
                         if (numberOfCreatedOption < 6)
-                        {                            
+                        {
                             Instructions.Text = "Enter your answer for option " + numberOfCreatedOption;
                             return;
                         }
                         else if (!doneWithCreatingQuestion)
                         {
-                            Instructions.Text = "Choose the correct option. " + handler.GetAnswerFormat(numberOfCreatedOption-1);
+                            Instructions.Text = "Choose the correct option. " + handler.GetAnswerFormat(numberOfCreatedOption - 1);
                             doneWithCreatingQuestion = true;
                             return;
                         }
-                        
+
                         questionAnswer = handler.VerifyAnswer(questionAnswer, numberOfCreatedOption - 1);
                         if (questionAnswer == handler.AnswerIsNullString)
                         {
-                            Instructions.Text = questionAnswer + handler.GetAnswerFormat(numberOfCreatedOption-1);
+                            Instructions.Text = questionAnswer + handler.GetAnswerFormat(numberOfCreatedOption - 1);
                             return;
-                        }                       
+                        }
                     }
 
                     if (doneWithCreatingQuestion)
@@ -313,7 +313,7 @@ namespace WPF_GUI_Question
                         hasFinishedCreatingQuestion = true;
                         ContinueButton.IsEnabled = true;
                     }
-                }               
+                }
             }
         }
         private void Option1_Click(object sender, RoutedEventArgs e)
@@ -358,7 +358,7 @@ namespace WPF_GUI_Question
             else
             {
                 CreateQuestionInit(false, true, false, "3");
-            }            
+            }
         }
         private void Option4_Click(object sender, RoutedEventArgs e)
         {
@@ -370,7 +370,7 @@ namespace WPF_GUI_Question
             else
             {
                 CreateQuestionInit(false, false, true, "4");
-            }            
+            }
         }
         private void Option5_Click(object sender, RoutedEventArgs e)
         {
