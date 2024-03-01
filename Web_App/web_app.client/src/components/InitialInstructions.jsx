@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
+import TakeQuiz from "../components/TakeQuiz";
+import CreateQuestion from "../components/CreateQuestion";
+import RemoveQuestion from "../components/RemoveQuestion";
+import ModifyQuestion from "../components/ModifyQuestion";
+import CloseApplication from "../components/CloseApplication";
 import '../styles/InstructionButtons.css';
-import TakeQuiz from './TakeQuiz';
-import CreateQuestion from './CreateQuestion';
-import RemoveQuestion from './RemoveQuestion';
-import ModifyQuestion from './ModifyQuestion';
-import CloseApplication from './CloseApplication';
 
 const InitialInstructions = () => {
     const apiUrl = 'https://localhost:7140/api/quiz/instructions';
     const [instructions, setInstructions] = useState(null);
-    const [selectedButton, setSelectedButton] = useState(null);
+    const [selectedComponent, setSelectedComponent] = useState(null);
 
     const fetchData = async () => {
         try {
@@ -31,23 +31,25 @@ const InitialInstructions = () => {
     }, []);
 
     const handleButtonClick = (buttonIndex) => {
-        setSelectedButton(buttonIndex);
-    };
-
-    const renderComponent = () => {
-        switch (selectedButton) {
+        switch (buttonIndex) {
             case 1:
-                return <TakeQuiz />;
+                setSelectedComponent(<TakeQuiz />);
+                break;
             case 2:
-                return <CreateQuestion />;
+                setSelectedComponent(<CreateQuestion />);
+                break;
             case 3:
-                return <RemoveQuestion />;
+                setSelectedComponent(<RemoveQuestion />);
+                break;
             case 4:
-                return <ModifyQuestion />;
+                setSelectedComponent(<ModifyQuestion />);
+                break;
             case 5:
-                return <CloseApplication />;
+                setSelectedComponent(<CloseApplication />);
+                break;
             default:
-                return null;
+                setSelectedComponent(null);
+                break;
         }
     };
 
@@ -55,23 +57,29 @@ const InitialInstructions = () => {
         <>
             {instructions ? (
                 <>
-                    <h4>{instructions[0]}</h4>
-                    <div>
-                        {instructions.slice(1).map((instruction, index) => (
-                            <React.Fragment key={index}>
-                                <button
-                                    className="instruction-button"
-                                    onClick={() => handleButtonClick(index + 1)}
-                                >
-                                    {instruction}
-                                </button>
-                                <br />
-                            </React.Fragment>
-                        ))}
-                    </div>
-                    <div>
-                        {renderComponent()}
-                    </div>
+                    <h1>Quiz</h1>
+                    {selectedComponent ? (
+                        <>
+                            {selectedComponent}
+                        </>
+                    ) : (
+                        <>
+                            <h4>{instructions[0]}</h4>
+                            <div>
+                                {instructions.slice(1).map((instruction, index) => (
+                                    <React.Fragment key={index}>
+                                        <button
+                                            className="instruction-button"
+                                            onClick={() => handleButtonClick(index + 1)}
+                                        >
+                                            {instruction}
+                                        </button>
+                                        <br />
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </>
             ) : (
                 <p>Loading...</p>
