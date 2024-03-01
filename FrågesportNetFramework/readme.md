@@ -989,3 +989,18 @@ Side note: I did not have to adjust QuizController in the slightest - all that r
 DTO and AutoMapper was to create 'MappingProfile.cs', register it in Startup.cs, inject it into the service class 
 using DI, and done. I changed the data type in 'GetQuestionCommand.cs', and adjusted some code in 'QuizService.cs'. 
 Then it all worked flawlessly. Very cool implementation, indeed.
+
+2024-03-01
+-----------
+They say all roads lead to Rome. To me it seems like all roads lead to this Quiz project. Maybe that's just me, though.
+Anyhow, I was going to say I don't think I have much to add to the API since last time. Then I checked my documentation
+and realized that there are things I could add. Which in turn reminded me that I've yet to create methods for 
+creating, updating, and deleting questions. Perhaps I should fix that...
+
+Update: Line 1000, woo! Also, I need to add cascading behaviour to the SQL database for use. I want this so that
+deleting or adding a question to the SQL database table 'Questions', adds it to 'QuestionCard' or 'MCSACard' as well.
+Would make a lot of things a lot easier, I think. This requires me to learn about SQL database migrations, so that's 
+what I'll be doing now.
+
+After some research, I've come to the conclusion that I may want to redo the SQL Server tables, using EF Core instead
+of SQL queries. I think it would benefit the project, should I manage the transition properly.
