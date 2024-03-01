@@ -8,14 +8,9 @@ namespace Web_App.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class QuizController : ControllerBase
+    public class QuizController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator mediator;
-
-        public QuizController(IMediator mediator)
-        {
-            this.mediator = mediator;
-        }
+        private readonly IMediator mediator = mediator;
 
         [HttpGet("initquiz/{playerName}/{numberOfQuestions:int}")]
         public async Task<ActionResult> InitializeQuiz(string playerName, int numberOfQuestions)

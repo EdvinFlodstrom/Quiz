@@ -6,16 +6,12 @@ using Web_App.Server.Models;
 
 namespace Web_App.Server.Services
 {
-    public class QuizService
+    public class QuizService(QuizContext quizContext, IMapper mapper)
     {
         private readonly Random rnd = new Random();
-        private readonly QuizContext quizContext;
-        private readonly IMapper _mapper;
-        public QuizService(QuizContext quizContext, IMapper mapper)
-        {
-            this.quizContext = quizContext;
-            _mapper = mapper;
-        }
+        private readonly QuizContext quizContext = quizContext;
+        private readonly IMapper _mapper = mapper;
+
         public Task<List<string>> GetInitialInstructions()
         {
             return Task.FromResult(new List<string>
