@@ -63,6 +63,8 @@ namespace Web_App.Server.Controllers
 
                 GetQuestionCommandResponse question = await mediator.Send(request);
 
+                Response.Headers.Add("Content-Type", "application/json");
+
                 return question.Success == true
                     ? Ok(question.Question)
                     : StatusCode(500, question.AnswerMessage + question.ErrorMessage);

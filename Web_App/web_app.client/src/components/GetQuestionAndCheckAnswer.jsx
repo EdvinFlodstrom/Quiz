@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import { hasFormSubmit } from "@testing-library/user-event/dist/utils";
+import React, { useState } from "react"; 
+// TODO : Disable 'get question' when quiz is done.
+// TODO : Clear label for inputting free-form answer when done.
+// TODO : Fix player being able to submit multiple answers for free-form questions.
 
 const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
     const buttonEnabledClassName = "instruction-button";
@@ -12,10 +16,15 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
     const [submitAnswerButtonDisabled, setSubmitAnswerButtonDisabled] = useState({
         disabled: true,
         className: buttonDisabledClassName,
+        hasSubmittedAnswer: false,
     });
     const [displayAnswer, setDisplayAnswer] = useState(false);
     const [question, setQuestion] = useState(null);
     const [writtenAnswer, setWrittenAnswer] = useState('');
+    const [displayCorrectOrIncorrect, setDisplayCorrectOrIncorrect] = useState({
+        display: false,
+        correctOrIncorrectString: '',
+    });
 
     const handleInitializeQuiz = async () => {
         try {
@@ -31,33 +40,57 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
             disabled: true,
             className: buttonDisabledClassName,
         });
+        setDisplayCorrectOrIncorrect({
+            display: false,
+            correctOrIncorrectString: '',
+        });
         const response = await fetch(`https://localhost:7140/api/quiz/takequiz/${name}`);
         const retrievedQuestion = await response.json();
         setQuestion(retrievedQuestion);
         setDisplayAnswer(true);
-        if (retrievedQuestion.questionType === 'MCSACard') {
-            setSubmitAnswerButtonDisabled({
+        // // if (retrievedQuestion.questionType === 'MCSACard') {
+        // //     setSubmitAnswerButtonDisabled({
+        // //         disabled: false,
+        // //         className: buttonEnabledClassName,
+        // //         hasSubmittedAnswer: false,
+        // //     });
+        // // };
+        setSubmitAnswerButtonDisabled({
+            ...(retrievedQuestion.questionType  === 'MCSACard' && {
                 disabled: false,
                 className: buttonEnabledClassName,
-            });
-        };
+            }),
+            hasSubmittedAnswer: false,
+        });
     };
 
     const handleSubmitAnswer = async (answer) => {
         setSubmitAnswerButtonDisabled({
             disabled: true,
             className: buttonDisabledClassName,
+            hasSubmittedAnswer: true,
         });
-        // Answer is in correct format for both QuestionCard and MCSACard.
-        
+        const response = await fetch(`https://localhost:7140/api/quiz/takequiz/${name}/${answer}`);
+        const data = await response.json();
+        setDisplayCorrectOrIncorrect({
+            display: true,
+            correctOrIncorrectString: data,
+        });
+        setGetQuestionButtonDisabled({
+            disabled: false,
+            className: buttonEnabledClassName,
+        });
     };
 
     const handleInputChange = (e) => {
+        console.log(submitAnswerButtonDisabled.hasSubmittedAnswer)
+        console.log(submitAnswerButtonDisabled.hasSubmittedAnswer)
         const inputValue = e.target.value;
         setWrittenAnswer(inputValue);
         setSubmitAnswerButtonDisabled({
-            disabled: inputValue.trim().length === 0,
-            className: inputValue.trim().length === 0 ? buttonDisabledClassName : buttonEnabledClassName,
+            disabled: inputValue.trim().length === 0 && !submitAnswerButtonDisabled.hasSubmittedAnswer,
+            className: (inputValue.trim().length === 0 && !submitAnswerButtonDisabled.hasSubmittedAnswer) ? buttonDisabledClassName : buttonEnabledClassName,
+            hasSubmittedAnswer: submitAnswerButtonDisabled.hasSubmittedAnswer,
         });
     };
 
@@ -118,6 +151,10 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
                             </button>
                         ))}
                     </div>
+                )}
+
+                {displayCorrectOrIncorrect.correctOrIncorrectString && (
+                    <p>{displayCorrectOrIncorrect.correctOrIncorrectString}</p>
                 )}
 
             </>
