@@ -5,8 +5,14 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
     const buttonDisabledClassName = "instruction-button-disabled";
 
     const [initButtonDisabled, setInitButtonDisabled] = useState(false);
-    const [getQuestionButtonDisabled, setgetQuestionButtonDisabled] = useState(false);
-    const [getQuestionButtonClassName, setgetQuestionButtonClassName] = useState(buttonEnabledClassName);
+    const [getQuestionButtonDisabled, setGetQuestionButtonDisabled] = useState({
+        disabled: false,
+        className: buttonEnabledClassName,
+    });
+    const [submitAnswerButtonDisabled, setSubmitAnswerButtonDisabled] = useState({
+        disabled: true,
+        className: buttonDisabledClassName,
+    });
     const [displayAnswer, setDisplayAnswer] = useState(false);
     const [question, setQuestion] = useState(null);
     const [writtenAnswer, setWrittenAnswer] = useState('');
@@ -15,23 +21,45 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
         try {
             await fetch(`https://localhost:7140/api/quiz/initquiz/${name}/${numQuestions}`);
             setInitButtonDisabled(true);
-            console.log('quiz initialized');
           } catch (error) {
             console.error('Initialization error:', error);
           }
-    }
+    };
 
     const handleGetQuestion = async () => {
-        setgetQuestionButtonDisabled(true);
-        setgetQuestionButtonClassName(buttonDisabledClassName);
+        setGetQuestionButtonDisabled({
+            disabled: true,
+            className: buttonDisabledClassName,
+        });
         const response = await fetch(`https://localhost:7140/api/quiz/takequiz/${name}`);
-        setQuestion(await response.json());
+        const retrievedQuestion = await response.json();
+        setQuestion(retrievedQuestion);
         setDisplayAnswer(true);
-    }
+        if (retrievedQuestion.questionType === 'MCSACard') {
+            setSubmitAnswerButtonDisabled({
+                disabled: false,
+                className: buttonEnabledClassName,
+            });
+        };
+    };
 
     const handleSubmitAnswer = async (answer) => {
+        setSubmitAnswerButtonDisabled({
+            disabled: true,
+            className: buttonDisabledClassName,
+        });
+        // Answer is in correct format for both QuestionCard and MCSACard.
         
-    }
+    };
+
+    const handleInputChange = (e) => {
+        const inputValue = e.target.value;
+        setWrittenAnswer(inputValue);
+        setSubmitAnswerButtonDisabled({
+            disabled: inputValue.trim().length === 0,
+            className: inputValue.trim().length === 0 ? buttonDisabledClassName : buttonEnabledClassName,
+        });
+    };
 
     return (
         <>
@@ -46,64 +74,51 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
         )
         : (
              <button
-             className={getQuestionButtonClassName}
+             className={getQuestionButtonDisabled.className}
              onClick={handleGetQuestion}
-             disabled={getQuestionButtonDisabled}>
+             disabled={getQuestionButtonDisabled.disabled}>
                 Get Question
              </button>
             )}
 
         {displayAnswer && question && (
             <>
-            <h3>{question.questionText}</h3>
 
-            {question.questionType === 'QuestionCard' && (
-                <>
-                    <label htmlFor="writtenAnswer">Input answer:</label>
+                <h3>{question.questionText}</h3>
+
+                {question.questionType === 'QuestionCard' && (
+                    <>
+                        <label htmlFor="writtenAnswer">Input answer:</label>
                         <input
                             type="text"
                             id="writtenAnswer"
                             value={writtenAnswer}
-                            onChange={(e) => setWrittenAnswer(e.target.value)}
+                            onChange={handleInputChange}
                         />
-                    <button
-                    className={!writtenAnswer.trim().length ? buttonDisabledClassName : buttonEnabledClassName}
-                    disabled={!writtenAnswer.trim().length}
-                    onClick={() => handleSubmitAnswer(writtenAnswer)}>
-                        Submit Answer
-                    </button>
-                </>
-            )}
+                        <button
+                            className={submitAnswerButtonDisabled.className}
+                            disabled={submitAnswerButtonDisabled.disabled}
+                            onClick={() => handleSubmitAnswer(writtenAnswer)}
+                        >
+                            Submit Answer
+                        </button>
+                    </>
+                )}
 
-            {question.questionType === "MCSACard" && (
-                <div>
-                    <button
-                    className={buttonEnabledClassName}
-                    onClick={() => handleSubmitAnswer(question.option1)}>
-                        {question.option1}
-                    </button>
-                    <button
-                    className={buttonEnabledClassName}
-                    onClick={() => handleSubmitAnswer(question.option2)}>
-                        {question.option2}
-                    </button>
-                    <button 
-                    className={buttonEnabledClassName}
-                    onClick={() => handleSubmitAnswer(question.option3)}>
-                        {question.option3}
-                    </button>
-                    <button 
-                    className={buttonEnabledClassName}
-                    onClick={() => handleSubmitAnswer(question.option4)}>
-                        {question.option4}
-                    </button>
-                    <button
-                    className={buttonEnabledClassName}
-                    onClick={() => handleSubmitAnswer(question.option5)}>
-                        {question.option5}
-                    </button>
-                </div>
-            )}
+                {question.questionType === "MCSACard" && (
+                    <div>
+                        {[question.option1, question.option2, question.option3, question.option4, question.option5].map((option, index) => (
+                            <button
+                                key={index}
+                                className={submitAnswerButtonDisabled.className}
+                                disabled={submitAnswerButtonDisabled.disabled}
+                                onClick={() => handleSubmitAnswer(index + 1)}
+                            >
+                                {option}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
             </>
         )}
