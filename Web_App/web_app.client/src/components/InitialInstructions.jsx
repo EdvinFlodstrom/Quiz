@@ -32,7 +32,7 @@ const InitialInstructions = () => {
 
     const handleButtonClick = (buttonIndex) => {
         switch (buttonIndex) {
-            case 1:
+            case 1:                
                 setSelectedComponent(<TakeQuiz />);
                 break;
             case 2:

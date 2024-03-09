@@ -1004,3 +1004,19 @@ what I'll be doing now.
 
 After some research, I've come to the conclusion that I may want to redo the SQL Server tables, using EF Core instead
 of SQL queries. I think it would benefit the project, should I manage the transition properly.
+
+2024-03-08
+-----------
+So I decided to wait with migrating the database and all that, but I've run into another fairly annoying issue.
+Similar to previously in this project, I'm trying to return a string from the API that I want to be in 
+JSON format. But it's not. It's in regular text format. And this is not what I want. I've tried using 
+`JsonSerialize.Serialize(this)`, but to no avail. Alas, the string is still in plain old boring text.
+I really don't want to convert one string to a list *again*, but what do I know. If it works, it works, 
+I guess. I'm not quite ready to fall to that level yet though; I'll keep trying to serialize it in other
+ways for a bit.
+
+Ah, so I fixed the issue above, but they seem to keep rolling in. I'm trying to fix the frontend
+question fetching and displaying, but really don't know how to fix it. I suppose this is what
+happens when someone who only knows backend tries to fix sort-of advanced frontend issues.
+Perhaps it would help if I tried to study some frontend and React things, but nah. I'll
+figure something out. Probably.

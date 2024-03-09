@@ -85,8 +85,10 @@ namespace Web_App.Server.Controllers
 
                 CheckAnswerCommandReponse question = await mediator.Send(request);
 
+                Response.Headers.Add("Content-Type", "application/json"); // TODO : Add where explicit JSON translation is necessary
+
                 return question.Success == true
-                    ? Ok($"{question.AnswerMessage}")
+                    ? Ok(question.AnswerMessage)
                     : StatusCode(500, question.AnswerMessage + question.ErrorMessage);
             }
             catch (Exception ex)

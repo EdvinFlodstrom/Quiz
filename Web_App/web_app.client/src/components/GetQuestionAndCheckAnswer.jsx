@@ -1,104 +1,114 @@
-import React, { useState, useEffect } from "react"; // TODO : Fix the question string not being rendered.
+import React, { useState } from "react";
 
 const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
+    const buttonEnabledClassName = "instruction-button";
+    const buttonDisabledClassName = "instruction-button-disabled";
+
+    const [initButtonDisabled, setInitButtonDisabled] = useState(false);
+    const [getQuestionButtonDisabled, setgetQuestionButtonDisabled] = useState(false);
+    const [getQuestionButtonClassName, setgetQuestionButtonClassName] = useState(buttonEnabledClassName);
+    const [displayAnswer, setDisplayAnswer] = useState(false);
     const [question, setQuestion] = useState(null);
-    const [answer, setAnswer] = useState("");
-    const [submittedAnswer, setSubmittedAnswer] = useState("");
-    const [showAnswer, setShowAnswer] = useState(false);
+    const [writtenAnswer, setWrittenAnswer] = useState('');
 
-    useEffect(() => {
-        // Function to initialize quiz and fetch the first question from the API
-        const initQuizAndFetchQuestion = async () => {
-            try {
-                // Initialize quiz (you may modify the endpoint and handling based on your server)
-                await fetch(`https://localhost:7140/api/quiz/initquiz/${name}/${numQuestions}`);
-
-                // Fetch the first question
-                const response = await fetch(`https://localhost:7140/api/quiz/takequiz/${name}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error. Status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                setQuestion(data);
-                setAnswer(""); // Clear previous answer
-                setShowAnswer(false);
-            } catch (error) {
-                console.error('Fetch error:', error);
-            }
-        };
-
-        initQuizAndFetchQuestion(); // Fetch question when the component mounts or when the user gets the next question
-    }, [name, submittedAnswer]);
-
-    const handleAnswerChange = (e) => {
-        setAnswer(e.target.value);
-    };
-
-    const handleOptionClick = (option) => {
-        setAnswer(option);
-    };
-
-    const handleSubmitAnswer = async () => {
+    const handleInitializeQuiz = async () => {
         try {
-            const response = await fetch(`https://localhost:7140/api/quiz/takequiz/${name}/${answer}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error. Status: ${response.status}`);
-            }
+            await fetch(`https://localhost:7140/api/quiz/initquiz/${name}/${numQuestions}`);
+            setInitButtonDisabled(true);
+            console.log('quiz initialized');
+          } catch (error) {
+            console.error('Initialization error:', error);
+          }
+    }
 
-            const data = await response.json();
-            setSubmittedAnswer(data);
-            setShowAnswer(true);
-        } catch (error) {
-            console.error('Submit answer error:', error);
-        }
-    };
+    const handleGetQuestion = async () => {
+        setgetQuestionButtonDisabled(true);
+        setgetQuestionButtonClassName(buttonDisabledClassName);
+        const response = await fetch(`https://localhost:7140/api/quiz/takequiz/${name}`);
+        setQuestion(await response.json());
+        setDisplayAnswer(true);
+    }
 
-    const handleGetNextQuestion = () => {
-        // This will trigger a re-fetch of the question by updating the submittedAnswer state
-        setSubmittedAnswer("");
-    };
+    const handleSubmitAnswer = async (answer) => {
+        
+    }
 
     return (
-        <div>
-            <h3>{question ? question.QuestionText : "Loading question..."}</h3>
+        <>
 
-            {question && question.QuestionType === "MCSACard" ? (
+        {!initButtonDisabled ? (
+            <button 
+            className={buttonEnabledClassName}
+            onClick={handleInitializeQuiz}
+            disabled={initButtonDisabled}>
+                Initialize Quiz
+            </button>
+        )
+        : (
+             <button
+             className={getQuestionButtonClassName}
+             onClick={handleGetQuestion}
+             disabled={getQuestionButtonDisabled}>
+                Get Question
+             </button>
+            )}
+
+        {displayAnswer && question && (
+            <>
+            <h3>{question.questionText}</h3>
+
+            {question.questionType === 'QuestionCard' && (
                 <>
-                    <div>
-                        <button onClick={() => handleOptionClick(question.Option1)}>{question.Option1}</button>
-                        <button onClick={() => handleOptionClick(question.Option2)}>{question.Option2}</button>
-                        <button onClick={() => handleOptionClick(question.Option3)}>{question.Option3}</button>
-                        <button onClick={() => handleOptionClick(question.Option4)}>{question.Option4}</button>
-                        <button onClick={() => handleOptionClick(question.Option5)}>{question.Option5}</button>
-                    </div>
-                </>
-            ) : (
-                <>
-                    <div>
-                        <label>
-                            Your Answer:
-                            <input type="text" value={answer} onChange={handleAnswerChange} />
-                        </label>
-                    </div>
+                    <label htmlFor="writtenAnswer">Input answer:</label>
+                        <input
+                            type="text"
+                            id="writtenAnswer"
+                            value={writtenAnswer}
+                            onChange={(e) => setWrittenAnswer(e.target.value)}
+                        />
+                    <button
+                    className={!writtenAnswer.trim().length ? buttonDisabledClassName : buttonEnabledClassName}
+                    disabled={!writtenAnswer.trim().length}
+                    onClick={() => handleSubmitAnswer(writtenAnswer)}>
+                        Submit Answer
+                    </button>
                 </>
             )}
 
-            <div>
-                <button onClick={handleSubmitAnswer} disabled={!answer}>
-                    Submit Answer
-                </button>
-            </div>
-
-            {showAnswer && (
+            {question.questionType === "MCSACard" && (
                 <div>
-                    <p>Your submitted answer: {submittedAnswer}</p>
-                    <button onClick={handleGetNextQuestion} disabled={!submittedAnswer}>
-                        Get Next Question
+                    <button
+                    className={buttonEnabledClassName}
+                    onClick={() => handleSubmitAnswer(question.option1)}>
+                        {question.option1}
+                    </button>
+                    <button
+                    className={buttonEnabledClassName}
+                    onClick={() => handleSubmitAnswer(question.option2)}>
+                        {question.option2}
+                    </button>
+                    <button 
+                    className={buttonEnabledClassName}
+                    onClick={() => handleSubmitAnswer(question.option3)}>
+                        {question.option3}
+                    </button>
+                    <button 
+                    className={buttonEnabledClassName}
+                    onClick={() => handleSubmitAnswer(question.option4)}>
+                        {question.option4}
+                    </button>
+                    <button
+                    className={buttonEnabledClassName}
+                    onClick={() => handleSubmitAnswer(question.option5)}>
+                        {question.option5}
                     </button>
                 </div>
             )}
-        </div>
+
+            </>
+        )}
+        
+        </>
     );
 };
 
