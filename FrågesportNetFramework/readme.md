@@ -1020,3 +1020,19 @@ question fetching and displaying, but really don't know how to fix it. I suppose
 happens when someone who only knows backend tries to fix sort-of advanced frontend issues.
 Perhaps it would help if I tried to study some frontend and React things, but nah. I'll
 figure something out. Probably.
+
+2024-03-09
+-----------
+So I got the problems above fixed. I did, admittedly, spend a *lot* of time today working on this all,
+but it was surprisingly fun. I used ChatGPT to write most of the frontend components, but after struggling
+to get it to make a working 'GetQuestionAndCheckAnswer.jsx' component, I decided to rewrite it from scratch,
+myself. It took a long time, but I'm quite happy with how it turned out. Although it doesn't look amazing, 
+it works almost flawlessly. The only clear point of improvement is regarding dealing with the scenario where
+all questions have been retrieved and answered. Currently, when you verify the answer of your final question, 
+a string containing your correct answers is returned, and upon consecutive attempts at retrieving the next 
+question, nothing will happen. It's a point of improvement in the API, but it gets the job done. Also,
+the reason why the React component doesn't look great isn't because the code is terrible - it's actually
+quite OK, I should think. It's rather because of my very lacking CSS skills. I asked ChatGPT to throw
+together some CSS for the buttons, and that was that. I'm quite incompetent when it comes to making things
+look good in general, so I've never been great at CSS. As such, I'll leave the React frontend looking a tad
+empty and boring for now. Functionality is all I need, here.
