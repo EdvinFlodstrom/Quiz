@@ -123,7 +123,7 @@ namespace Web_App.Server.Services
                 }
                 if (question == null)
                 {
-                    return (false, "You have already answered all your questions. Please initiaze the quiz to play again."
+                    return (false, "You have already answered all your questions. Please initialize the quiz to play again."
                         + Environment.NewLine
                         + $"Your final result was: {player.CorrectAnswers} / {player.ListOfQuestionIds
                             .Trim()
@@ -148,7 +148,7 @@ namespace Web_App.Server.Services
                 return (false, ex.Message, null);
             }
         }
-        public async Task<(bool, string)> CheckAnswer(string playerName, string playerAnswer)
+        public async Task<(bool success, string resultString)> CheckAnswer(string playerName, string playerAnswer)
         {
             try
             {

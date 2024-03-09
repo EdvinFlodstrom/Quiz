@@ -1,8 +1,4 @@
-import { hasFormSubmit } from "@testing-library/user-event/dist/utils";
 import React, { useState } from "react"; 
-// TODO : Disable 'get question' when quiz is done.
-// TODO : Clear label for inputting free-form answer when done.
-// TODO : Fix player being able to submit multiple answers for free-form questions.
 
 const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
     const buttonEnabledClassName = "instruction-button";
@@ -36,6 +32,27 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
     };
 
     const handleGetQuestion = async () => {
+        const response = await fetch(`https://localhost:7140/api/quiz/takequiz/${name}`);
+        const retrievedQuestion = await response.json();
+
+        if (retrievedQuestion === false)
+        {
+            setGetQuestionButtonDisabled({
+                disabled: true,
+                className: buttonDisabledClassName,
+            });
+            return;
+        }
+
+        if (retrievedQuestion.questionType === null)
+        {
+            setDisplayCorrectOrIncorrect({
+                correctOrIncorrectString: retrievedQuestion.answerMessage,
+            });
+            return;
+        }
+
+        setWrittenAnswer('');
         setGetQuestionButtonDisabled({
             disabled: true,
             className: buttonDisabledClassName,
@@ -44,11 +61,21 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
             display: false,
             correctOrIncorrectString: '',
         });
-        
-        const response = await fetch(`https://localhost:7140/api/quiz/takequiz/${name}`);
-        const retrievedQuestion = await response.json();
+        setSubmitAnswerButtonDisabled({
+            disabled: false,
+            className: buttonEnabledClassName,
+            hasSubmittedAnswer: false,
+        });
+            
         setQuestion(retrievedQuestion);
         setDisplayAnswer(true);
+        if (retrievedQuestion.questionType === 'QuestionCard')
+        {
+            setSubmitAnswerButtonDisabled({
+                disabled: true,
+                className: buttonDisabledClassName,
+            });
+        }
     };
 
     const handleSubmitAnswer = async (answer) => {
@@ -62,11 +89,13 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
         setDisplayCorrectOrIncorrect({
             display: true,
             correctOrIncorrectString: data,
-        });
-        setGetQuestionButtonDisabled({
-            disabled: false,
-            className: buttonEnabledClassName,
-        });
+        });        
+        if (!data.hasAnsweredAllQuestions) {
+            setGetQuestionButtonDisabled({
+                disabled: false,
+                className: buttonEnabledClassName,
+            });
+        }
     };
 
     const handleInputChange = (e) => {
@@ -76,7 +105,6 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
         }
         const inputValue = e.target.value;
         setWrittenAnswer(inputValue);
-        console.log(submitAnswerButtonDisabled.hasSubmittedAnswer)
         setSubmitAnswerButtonDisabled({
             disabled: inputValue.trim().length === 0 && !submitAnswerButtonDisabled.hasSubmittedAnswer,
             className: (inputValue.trim().length === 0 && !submitAnswerButtonDisabled.hasSubmittedAnswer) ? buttonDisabledClassName : buttonEnabledClassName,
@@ -117,7 +145,7 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
                             id="writtenAnswer"
                             value={writtenAnswer}
                             onChange={handleInputChange}
-                            disabled={submitAnswerButtonDisabled.hasSubmittedAnswer}
+                            disabled={submitAnswerButtonDisabled.hasSubmittedAnswer}                            
                         />
                         <button
                             className={submitAnswerButtonDisabled.className}

@@ -67,6 +67,8 @@ namespace Web_App.Server.Controllers
 
                 return question.Success == true
                     ? Ok(question.Question)
+                    : question.ErrorMessage is null 
+                    ? Ok(false)
                     : StatusCode(500, question.AnswerMessage + question.ErrorMessage);
             }
             catch (Exception ex)

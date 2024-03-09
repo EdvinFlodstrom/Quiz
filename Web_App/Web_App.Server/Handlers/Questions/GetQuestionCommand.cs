@@ -25,8 +25,7 @@ namespace Web_App.Server.Handlers.Questions
 
             try
             {
-                (bool successfullyGotQuestion, response.AnswerMessage, response.Question) = await quizService.GetQuestion(request.PlayerName);
-                response.Success = successfullyGotQuestion;
+                (response.Success, response.AnswerMessage, response.Question) = await quizService.GetQuestion(request.PlayerName);                
             }
             catch (Exception ex)
             {
