@@ -1036,3 +1036,11 @@ quite OK, I should think. It's rather because of my very lacking CSS skills. I a
 together some CSS for the buttons, and that was that. I'm quite incompetent when it comes to making things
 look good in general, so I've never been great at CSS. As such, I'll leave the React frontend looking a tad
 empty and boring for now. Functionality is all I need, here.
+
+This all means that the quiz can now be played through the React application. And this in turn means that
+I've finished what little I wanted to get done before leaving this project for some time. Since I'll be
+rather busy in the coming weeks, I do not know how much time I will spend working on this project. It may
+be next to none, for all I know. So I wanted to make sure that I left at a fitting time, which I believe 
+is now.
+
+It's been fun.
