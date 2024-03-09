@@ -44,24 +44,11 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
             display: false,
             correctOrIncorrectString: '',
         });
+        
         const response = await fetch(`https://localhost:7140/api/quiz/takequiz/${name}`);
         const retrievedQuestion = await response.json();
         setQuestion(retrievedQuestion);
         setDisplayAnswer(true);
-        // // if (retrievedQuestion.questionType === 'MCSACard') {
-        // //     setSubmitAnswerButtonDisabled({
-        // //         disabled: false,
-        // //         className: buttonEnabledClassName,
-        // //         hasSubmittedAnswer: false,
-        // //     });
-        // // };
-        setSubmitAnswerButtonDisabled({
-            ...(retrievedQuestion.questionType  === 'MCSACard' && {
-                disabled: false,
-                className: buttonEnabledClassName,
-            }),
-            hasSubmittedAnswer: false,
-        });
     };
 
     const handleSubmitAnswer = async (answer) => {
@@ -83,10 +70,13 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
     };
 
     const handleInputChange = (e) => {
-        console.log(submitAnswerButtonDisabled.hasSubmittedAnswer)
-        console.log(submitAnswerButtonDisabled.hasSubmittedAnswer)
+        if (submitAnswerButtonDisabled.hasSubmittedAnswer)
+        {
+            return;
+        }
         const inputValue = e.target.value;
         setWrittenAnswer(inputValue);
+        console.log(submitAnswerButtonDisabled.hasSubmittedAnswer)
         setSubmitAnswerButtonDisabled({
             disabled: inputValue.trim().length === 0 && !submitAnswerButtonDisabled.hasSubmittedAnswer,
             className: (inputValue.trim().length === 0 && !submitAnswerButtonDisabled.hasSubmittedAnswer) ? buttonDisabledClassName : buttonEnabledClassName,
@@ -127,6 +117,7 @@ const GetQuestionAndCheckAnswer = ({ name, numQuestions }) => {
                             id="writtenAnswer"
                             value={writtenAnswer}
                             onChange={handleInputChange}
+                            disabled={submitAnswerButtonDisabled.hasSubmittedAnswer}
                         />
                         <button
                             className={submitAnswerButtonDisabled.className}
