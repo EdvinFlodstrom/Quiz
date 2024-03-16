@@ -1086,3 +1086,15 @@ of pain when I was trying everything to figure out why the debugger didn't enter
 the breakpoints. I struggled. A lot. But it works now, woo! The first unit test is a success,
 and I believe it tests everything that needs to be tested from the 'InitializeQuiz' method of
 'QuizController.cs'.
+
+Well I didn't think tests could be so difficult to set up. I've now managed to slap together a 
+second test, this one for getting all questions. It's certainly larger than the previous, 
+but perhaps that's to be expected. What I did not expect, however, was how gruesomely
+difficult it would be to access properties of ActionResult objects. I think I understand
+it a bit more now, with converting ActionResults to ObjectResults instead and such.
+But it was not all that fun trying to find the best solution to it all. At least the
+test works well, testing not just the status code of the 'GetAllQuestions' method but
+also that the questions are returned in an expected format and with valid values.
+Come to think of it, I should also implement tests for cases where players try to initialize
+the quiz with invalid values, such as without a player name or amount of questions. Maybe I'll
+continue on it later today, or tomorrow. Or another time.

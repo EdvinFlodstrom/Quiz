@@ -2,7 +2,9 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Web_App.Server.Controllers;
+using Web_App.Server.Handlers.Questions;
 using Web_App.Server.Handlers.Quiz;
+using Web_App.Server.Models;
 
 namespace Tests;
 
@@ -12,42 +14,116 @@ public class QuizControllerTests
     private static readonly Mock<IMediator> mediatorMock = new();
 
     [TestMethod]
-    public async Task TestMethod1()
+    public async Task InitializeQuizTest()
     {
         //Arrange        
         var initializeQuizCommand = new InitializeQuizCommand
         {
             PlayerName = "John Doe",
             NumberOfQuestions = 10,
-        };        
-
-        mediatorMock.Setup(m => m.Send(
-            It.Is<InitializeQuizCommand>(x => 
-            x.PlayerName == "John Doe" && x.NumberOfQuestions == 10),
-            CancellationToken.None))
-            .ReturnsAsync(new InitializeQuizCommandResponse
-            {
-                QuizInitializedDetails = ["Quiz has been initialized successfully for player John Doe."],
-                Success = true,
-                ErrorMessage = null,
-            });
+        };
+        string successfulInitializationString = "Quiz has been initialized successfully for player John Doe.";
 
         var controller = new QuizController(mediatorMock.Object);
 
+        mediatorMock.Setup(m => m.Send(
+            It.Is<InitializeQuizCommand>(x => 
+            x.PlayerName == initializeQuizCommand.PlayerName && x.NumberOfQuestions == initializeQuizCommand.NumberOfQuestions),
+            CancellationToken.None))
+            .ReturnsAsync(new InitializeQuizCommandResponse
+            {
+                QuizInitializedDetails = [successfulInitializationString],
+                Success = true,
+                ErrorMessage = null,
+            });
+        
         //Act
         var result = await controller.InitializeQuiz("John Doe", 10);
+        ObjectResult objectResult = (ObjectResult)result;
+
         mediatorMock.Verify(m => m.Send(
             It.Is<InitializeQuizCommand>(x =>
-            x.PlayerName == "John Doe" && x.NumberOfQuestions == 10),
+            x.PlayerName == initializeQuizCommand.PlayerName && x.NumberOfQuestions == initializeQuizCommand.NumberOfQuestions),
             CancellationToken.None));
-
-        ObjectResult objectResult = (ObjectResult)result;
 
         //Assert
         Assert.IsNotNull(result);
         Assert.IsTrue(objectResult.StatusCode == 200);
         Assert.AreEqual(
-            "Quiz has been initialized successfully for player John Doe.",
+            successfulInitializationString,
             (objectResult.Value as List<string>)?[0]);
+    }
+
+    [TestMethod]
+    public async Task GetAllQuestionsTest()
+    {
+        //Arrange
+        var query = new GetAllQuestionsQuery();
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        var questionCardMock = new QuestionCardModel
+        {
+            QuestionId = 1,
+            QuestionType = "QuestionCard",
+            QuestionText = "Test",
+            RequiredWords = "Test",
+        };
+
+        var mcsaCardMock = new MCSACardModel
+        {
+            QuestionId = 2,
+            QuestionType = "MCSACard",
+            QuestionText = "Test",
+            Option1 = "Test1",
+            Option2 = "Test2",
+            Option3 = "Test3",
+            Option4 = "Test4",
+            Option5 = "Test5",
+            CorrectOptionNumber = 1,
+        };
+
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<GetAllQuestionsQuery>(), CancellationToken.None))
+            .ReturnsAsync(new GetAllQuestionsQueryResponse
+            {
+                Questions =
+                [
+                    questionCardMock,
+                    mcsaCardMock,
+                ],
+                Success = true,
+                ErrorMessage = null,
+            });
+
+        //Act
+        var result = await controller.GetAllQuestions();
+        var objectResult = result.Result as ObjectResult;
+
+        var questionCard = (objectResult.Value as List<QuestionModel>).OfType<QuestionCardModel>().ToList()[0];
+        var mcsaCard = (objectResult.Value as List<QuestionModel>).OfType<MCSACardModel>().ToList()[0];
+
+        mediatorMock.Verify(m => m.Send(
+            It.IsAny<GetAllQuestionsQuery>(), CancellationToken.None));
+
+        //Assert
+        Assert.AreEqual(200, objectResult.StatusCode);
+        Assert.IsNotNull(objectResult);
+        Assert.IsNotNull(questionCard);
+        Assert.IsNotNull(mcsaCard);
+
+        Assert.AreEqual(questionCard.QuestionId, questionCardMock.QuestionId);
+        Assert.AreEqual(questionCard.QuestionType, questionCardMock.QuestionType);
+        Assert.AreEqual(questionCard.QuestionText, questionCardMock.QuestionText);
+        Assert.AreEqual(questionCard.RequiredWords, questionCardMock.RequiredWords);
+
+        Assert.AreEqual(mcsaCard.QuestionId, mcsaCardMock.QuestionId);
+        Assert.AreEqual(mcsaCard.QuestionType, mcsaCardMock.QuestionType);
+        Assert.AreEqual(mcsaCard.Option1, mcsaCardMock.Option1);
+        Assert.AreEqual(mcsaCard.Option2, mcsaCardMock.Option2);
+        Assert.AreEqual(mcsaCard.Option3, mcsaCardMock.Option3);
+        Assert.AreEqual(mcsaCard.Option4, mcsaCardMock.Option4);
+        Assert.AreEqual(mcsaCard.Option5, mcsaCardMock.Option5);
+        Assert.AreEqual(mcsaCard.CorrectOptionNumber, mcsaCardMock.CorrectOptionNumber);
     }
 }
