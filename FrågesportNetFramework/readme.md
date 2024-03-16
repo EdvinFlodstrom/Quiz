@@ -1044,3 +1044,45 @@ be next to none, for all I know. So I wanted to make sure that I left at a fitti
 is now.
 
 It's been fun.
+
+2024-03-16
+-----------
+I'm back! Did I expect to be back so soon? No. Did I plan to be back so soon? Also no. Did I get bored and 
+want to do something productive after having more than two hours of free time on a friday afternoon? Yes. 
+So now I've written a unit test and debugged it all the way to Antarctica on a saturday morning. I was 
+close to giving up a few times on this unit test, as it seemed to make about as much sense as me
+complaining about spare time on a friday afternoon. Not very much, in other words. So, my 'QuizController.cs'
+class accepts an IMediator through its constructor, so I had to create a mock of it in the test class. I thought
+it worked well, but something went wrong. The test could not for the life of it run the following code properly:
+`InitializeQuizCommandResponse quizInitializedSuccessfully = await mediator.Send(command);`. 
+quizInitializedSuccessfully was set to null every time. I was certain that my values were correct. And they were,
+*kind of*. The values were identical, but not the same. Sounds like a fun problem to have, right? It wasn't.
+I needed a way to pass mock values to the instance of 'InitializeQuizCommand' in the test class, and I thought
+I did it right with:
+```csharp
+InitializeQuizCommand initializeQuizCommand = new InitializeQuizCommand
+{
+    PlayerName = "John Doe",
+    NumberOfQuestions = 10,
+};
+```
+Alas, this was not the way to go. The values were saved and used, but as I said, they were not the same. 
+Merely identical. So, what I had to do was pass them directly in the method call instead, like this: 
+```csharp
+mediatorMock.Setup(m => m.Send(
+    It.Is<InitializeQuizCommand>(x => 
+    x.PlayerName == "John Doe" && x.NumberOfQuestions == 10),
+    CancellationToken.None))
+    .ReturnsAsync(new InitializeQuizCommandResponse
+    {
+        QuizInitializedDetails = ["Quiz has been initialized successfully for player John Doe."],
+        Success = true,
+        ErrorMessage = null,
+    });
+```
+Once I got this figured out, all went well. So I'll leave it at this, neglecting to describe the hour
+of pain when I was trying everything to figure out why the debugger didn't enter 
+`InitializeQuizCommandResponse quizInitializedSuccessfully = await mediator.Send(command);` despite
+the breakpoints. I struggled. A lot. But it works now, woo! The first unit test is a success,
+and I believe it tests everything that needs to be tested from the 'InitializeQuiz' method of
+'QuizController.cs'.

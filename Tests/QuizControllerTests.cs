@@ -19,7 +19,7 @@ public class QuizControllerTests
         {
             PlayerName = "John Doe",
             NumberOfQuestions = 10,
-        };
+        };        
 
         mediatorMock.Setup(m => m.Send(
             It.Is<InitializeQuizCommand>(x => 
