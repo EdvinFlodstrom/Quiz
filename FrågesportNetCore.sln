@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrågesportNetFramework", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web_App.Server", "Web_App\Web_App.Server\Web_App.Server.csproj", "{AFC570D5-02A1-4D1C-AA36-28CEBB7C43AC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{C80A42E7-2DBC-4C25-83FA-8F5E817283EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{AFC570D5-02A1-4D1C-AA36-28CEBB7C43AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFC570D5-02A1-4D1C-AA36-28CEBB7C43AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFC570D5-02A1-4D1C-AA36-28CEBB7C43AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C80A42E7-2DBC-4C25-83FA-8F5E817283EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C80A42E7-2DBC-4C25-83FA-8F5E817283EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C80A42E7-2DBC-4C25-83FA-8F5E817283EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C80A42E7-2DBC-4C25-83FA-8F5E817283EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
