@@ -10,6 +10,6 @@ public class MappingProfile : Profile
     {
         CreateMap<QuestionModel, QuestionDto>();
 
-        CreateMap<MCSACardModel,MCSACardDto>();
+        CreateMap<MCSACardModel, MCSACardDto>();
     }
 }

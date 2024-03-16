@@ -133,12 +133,12 @@ namespace Web_App.Server.Services
                             .Count}"
                         , null);
                 }
-       
+
                 var questionDto = question is QuestionCardModel
                     ? _mapper.Map<QuestionDto>(question)
                     : question is MCSACardModel mcsaCard
                     ? _mapper.Map<MCSACardDto>(mcsaCard)
-                    : null;                
+                    : null;
 
                 return (true, "Success.", questionDto);
             }

@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Web_App.Server.DTOs;
-using Web_App.Server.Models;
 using Web_App.Server.Services;
 
 namespace Web_App.Server.Handlers.Questions
@@ -25,7 +24,7 @@ namespace Web_App.Server.Handlers.Questions
 
             try
             {
-                (response.Success, response.AnswerMessage, response.Question) = await quizService.GetQuestion(request.PlayerName);                
+                (response.Success, response.AnswerMessage, response.Question) = await quizService.GetQuestion(request.PlayerName);
             }
             catch (Exception ex)
             {

@@ -63,11 +63,11 @@ namespace Web_App.Server.Controllers
 
                 GetQuestionCommandResponse question = await mediator.Send(request);
 
-                Response.Headers.Add("Content-Type", "application/json");
+                Response.Headers.Append("Content-Type", "application/json");
 
                 return question.Success == true
                     ? Ok(question.Question)
-                    : question.ErrorMessage is null 
+                    : question.ErrorMessage is null
                     ? Ok(false)
                     : StatusCode(500, question.AnswerMessage + question.ErrorMessage);
             }
@@ -89,7 +89,7 @@ namespace Web_App.Server.Controllers
 
                 CheckAnswerCommandReponse question = await mediator.Send(request);
 
-                Response.Headers.Add("Content-Type", "application/json"); // TODO : Add where explicit JSON translation is necessary
+                Response.Headers.Append("Content-Type", "application/json");
 
                 return question.Success == true
                     ? Ok(question.AnswerMessage)
