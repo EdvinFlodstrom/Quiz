@@ -1098,3 +1098,33 @@ also that the questions are returned in an expected format and with valid values
 Come to think of it, I should also implement tests for cases where players try to initialize
 the quiz with invalid values, such as without a player name or amount of questions. Maybe I'll
 continue on it later today, or tomorrow. Or another time.
+
+2024-03-17
+-----------
+I'm confused. Probably for the one billionth time. When debugging tests, I can use the debugger
+to step into 'QuizController' to see what happens. But I can never, no matter what, enter
+`InitializeQuizCommandResponse quizInitializedSuccessfully = await mediator.Send(command);`.
+I don't know exactly why, but what I do know is that `quizInitializedSuccessfully` is set 
+to null if I don't mock the response. I would like to see how the controller would handle
+actual not-mocked responses, but it never works. I don't know why, or if it's supposed
+to be this way, but whatever. I'll just roll with what I have.
+
+I wonder if it's the IMediator haunting me? The IMediator works in the controller class but
+not the test classes. Huh.
+
+I don't really see why it would be the IMediator of the test class that is failing though.
+`var result = await controller.InitializeQuiz(command.PlayerName, command.NumberOfQuestions);`
+leads to the controller, where 
+`InitializeQuizCommandResponse quizInitializedSuccessfully = await mediator.Send(command);`
+is what fails. The controller isn't using its IMediator for the code that fails. I don't
+understand, and I'm tired of trying to understand it. Maybe I'll understand at some point.
+Certainly not now, though. I'll see if I can slap together this test and see what happens.
+
+To be honest, I don't quite see the point in these tests. From my understanding, what I'm 
+doing is: 1) Prepare something that should fail, 2) Rig the test so that it fails regardless
+of whether or not the data sent is valid, 3) Verify that the controller method call happened,
+4) Check if the test failed. Maybe I'm missing something obvious, but with these tests,
+I feel like I'm just rigging the results and checking the rigged results. Something seems
+broken somewhere as well, since letting the controller handle the actual requests appears to
+fail every time. And this is despite it handling Postman/JavaScript-fetch-requests just fine.
+I am, indeed, confused.
