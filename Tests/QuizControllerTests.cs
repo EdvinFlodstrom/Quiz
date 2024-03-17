@@ -14,21 +14,21 @@ public class QuizControllerTests
     private static readonly Mock<IMediator> mediatorMock = new();
 
     [TestMethod]
-    public async Task InitializeQuizTest()
+    public async Task InitializeQuizSuccessTest()
     {
         //Arrange        
-        var initializeQuizCommand = new InitializeQuizCommand
+        var command = new InitializeQuizCommand
         {
             PlayerName = "John Doe",
             NumberOfQuestions = 10,
         };
-        string successfulInitializationString = "Quiz has been initialized successfully for player John Doe.";
+        string successfulInitializationString = "Quiz has been initialized successfully for player " + command.PlayerName + ".";
 
         var controller = new QuizController(mediatorMock.Object);
 
         mediatorMock.Setup(m => m.Send(
-            It.Is<InitializeQuizCommand>(x => 
-            x.PlayerName == initializeQuizCommand.PlayerName && x.NumberOfQuestions == initializeQuizCommand.NumberOfQuestions),
+            It.Is<InitializeQuizCommand>(x =>
+            x.PlayerName == command.PlayerName && x.NumberOfQuestions == command.NumberOfQuestions),
             CancellationToken.None))
             .ReturnsAsync(new InitializeQuizCommandResponse
             {
@@ -36,14 +36,14 @@ public class QuizControllerTests
                 Success = true,
                 ErrorMessage = null,
             });
-        
+
         //Act
-        var result = await controller.InitializeQuiz("John Doe", 10);
+        var result = await controller.InitializeQuiz(command.PlayerName, command.NumberOfQuestions);
         ObjectResult objectResult = (ObjectResult)result;
 
         mediatorMock.Verify(m => m.Send(
             It.Is<InitializeQuizCommand>(x =>
-            x.PlayerName == initializeQuizCommand.PlayerName && x.NumberOfQuestions == initializeQuizCommand.NumberOfQuestions),
+            x.PlayerName == command.PlayerName && x.NumberOfQuestions == command.NumberOfQuestions),
             CancellationToken.None));
 
         //Assert
@@ -55,7 +55,87 @@ public class QuizControllerTests
     }
 
     [TestMethod]
-    public async Task GetAllQuestionsTest()
+    public async Task InitializeQuizNoNameTest()
+    {
+        //Arrange
+        var command = new InitializeQuizCommand
+        {
+            PlayerName = null,
+            NumberOfQuestions = 1,
+        };
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        mediatorMock.Setup(m => m.Send(
+            It.Is<InitializeQuizCommand>(x =>
+            x.PlayerName == command.PlayerName && x.NumberOfQuestions == command.NumberOfQuestions),
+            CancellationToken.None))
+            .ReturnsAsync(new InitializeQuizCommandResponse
+            {
+                QuizInitializedDetails = new List<string>(),
+                Success = false,
+                ErrorMessage = null,
+            });
+
+        //Act
+        var result = await controller.InitializeQuiz(command.PlayerName, command.NumberOfQuestions);
+        ObjectResult objectResult = (ObjectResult)result;
+
+        mediatorMock.Verify(m => m.Send(
+            It.Is<InitializeQuizCommand>(x =>
+            x.PlayerName == command.PlayerName && x.NumberOfQuestions == command.NumberOfQuestions),
+            CancellationToken.None));
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(objectResult.StatusCode, 500);
+        Assert.AreEqual(
+            null,
+            (objectResult.Value as List<string>)?[0]);
+    }
+
+    [TestMethod]
+    public async Task InitializeQuizNoNumberOfQuestionsTest()
+    {
+        //Arrange
+        var command = new InitializeQuizCommand
+        {
+            PlayerName = "John Doe",
+            NumberOfQuestions = 0,
+        };
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        mediatorMock.Setup(m => m.Send(
+            It.Is<InitializeQuizCommand>(x =>
+            x.PlayerName == command.PlayerName && x.NumberOfQuestions == command.NumberOfQuestions),
+            CancellationToken.None))
+            .ReturnsAsync(new InitializeQuizCommandResponse
+            {
+                QuizInitializedDetails = new List<string>(),
+                Success = false,
+                ErrorMessage = null,
+            });
+
+        //Act
+        var result = await controller.InitializeQuiz(command.PlayerName, command.NumberOfQuestions);
+        ObjectResult objectResult = (ObjectResult)result;
+
+        mediatorMock.Verify(m => m.Send(
+            It.Is<InitializeQuizCommand>(x =>
+            x.PlayerName == command.PlayerName && x.NumberOfQuestions == command.NumberOfQuestions),
+            CancellationToken.None));
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.IsTrue(objectResult.StatusCode == 500);
+        Assert.AreEqual(
+            null,
+            (objectResult.Value as List<string>)?[0]);
+    }
+
+    [TestMethod]
+    public async Task GetAllQuestionsSuccessTest()
     {
         //Arrange
         var query = new GetAllQuestionsQuery();
