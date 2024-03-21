@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Web_App.Server.Controllers;
@@ -231,7 +232,7 @@ public class QuizControllerTests
     }
 
     [TestMethod]
-    public async Task GetQuestionWithoutAnswerTest_WithQuestion_Successful()
+    public async Task GetQuestionWithoutAnswerTest_QuestionsLeft_Successful()
     {
         //Arrange
         var questionCardMock = new QuestionDto
@@ -246,6 +247,11 @@ public class QuizControllerTests
         };
 
         var controller = new QuizController(mediatorMock.Object);
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
 
         mediatorMock.Setup(m => m.Send(
             It.IsAny<GetQuestionCommand>(), 
@@ -263,15 +269,90 @@ public class QuizControllerTests
             });
 
         //Act
-        var response = await controller.GetQuestionWithoutAnswer(request.PlayerName); // Response.Headers.Append fails - 'Response' is null
-        var ObjectResult = response.Result as ObjectResult;
-        var questionCard = ObjectResult.Value as QuestionCardModel;
+        var response = await controller.GetQuestionWithoutAnswer(request.PlayerName);
+        var objectResult = response.Result as ObjectResult;
+        var questionCard = objectResult.Value as QuestionDto;
 
         //Assert
-        Assert.IsNotNull(ObjectResult);
-        Assert.AreEqual(200, ObjectResult.StatusCode);
-        Assert.IsTrue(ObjectResult.Value is QuestionCardModel);
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(200, objectResult.StatusCode);
+        Assert.IsTrue(questionCard is QuestionDto);
         Assert.AreEqual(questionCardMock.QuestionType, questionCard.QuestionType);
         Assert.AreEqual(questionCardMock.QuestionText, questionCard.QuestionText);
+    }
+
+    [TestMethod]
+    public async Task GetQuestionWithoutAnswerTest_NoQuestionsLeft_Success()
+    {
+        //Arrange
+        var request = new GetQuestionCommand
+        {
+            PlayerName = "John Doe",
+        };
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<GetQuestionCommand>(),
+            CancellationToken.None))
+            .ReturnsAsync(new GetQuestionCommandResponse
+            {
+                Question = null,
+                AnswerMessage = "You have answered all your questions.",
+                Success = false,
+                ErrorMessage = null,
+            });
+
+        //Act
+        var response = await controller.GetQuestionWithoutAnswer(request.PlayerName);
+        var objectResult = response.Result as ObjectResult;
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(200, objectResult.StatusCode);
+        Assert.IsFalse((bool)objectResult.Value);
+    }
+
+    [TestMethod]
+    public async Task GetQuestionWithoutAnswerTest_Fail()
+    {
+        //Arrange
+        var GetQuestionCommand = new GetQuestionCommand
+        {
+            PlayerName = "John Doe",
+        };
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<GetQuestionCommand>(),
+            CancellationToken.None))
+            .ReturnsAsync(new GetQuestionCommandResponse
+            {
+                Question = null,
+                AnswerMessage = null,
+                Success = false,
+                ErrorMessage = "Internal server error",
+            });
+
+        //Act
+        var response = await controller.GetQuestionWithoutAnswer(GetQuestionCommand.PlayerName);
+        var objectResult = response.Result as ObjectResult;
+        var questionMessage = objectResult.Value as string;
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode);
+        Assert.AreEqual("Internal server error", questionMessage);
     }
 }
