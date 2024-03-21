@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Web_App.Server.Controllers;
+using Web_App.Server.DTOs;
 using Web_App.Server.Handlers.Questions;
 using Web_App.Server.Handlers.Quiz;
 using Web_App.Server.Models;
@@ -14,7 +15,7 @@ public class QuizControllerTests
     private static readonly Mock<IMediator> mediatorMock = new();
 
     [TestMethod]
-    public async Task InitializeQuizSuccessTest()
+    public async Task InitializeQuizTest_Successful()
     {
         //Arrange        
         var command = new InitializeQuizCommand
@@ -55,7 +56,7 @@ public class QuizControllerTests
     }
 
     [TestMethod]
-    public async Task InitializeQuizNoNameTest()
+    public async Task InitializeQuizTest_NoName()
     {
         //Arrange
         var command = new InitializeQuizCommand
@@ -95,7 +96,7 @@ public class QuizControllerTests
     }
 
     [TestMethod]
-    public async Task InitializeQuizNoNumberOfQuestionsTest()
+    public async Task InitializeQuizTest_NoNumberOfQuestions()
     {
         //Arrange
         var command = new InitializeQuizCommand
@@ -135,11 +136,9 @@ public class QuizControllerTests
     }
 
     [TestMethod]
-    public async Task GetAllQuestionsSuccessTest()
+    public async Task GetAllQuestionsTest_Successful()
     {
         //Arrange
-        var query = new GetAllQuestionsQuery();
-
         var controller = new QuizController(mediatorMock.Object);
 
         var questionCardMock = new QuestionCardModel
@@ -164,7 +163,8 @@ public class QuizControllerTests
         };
 
         mediatorMock.Setup(m => m.Send(
-            It.IsAny<GetAllQuestionsQuery>(), CancellationToken.None))
+            It.IsAny<GetAllQuestionsQuery>(), 
+            CancellationToken.None))
             .ReturnsAsync(new GetAllQuestionsQueryResponse
             {
                 Questions =
@@ -179,7 +179,6 @@ public class QuizControllerTests
         //Act
         var result = await controller.GetAllQuestions();
         var objectResult = result.Result as ObjectResult;
-
         var questionCard = (objectResult.Value as List<QuestionModel>).OfType<QuestionCardModel>().ToList()[0];
         var mcsaCard = (objectResult.Value as List<QuestionModel>).OfType<MCSACardModel>().ToList()[0];
 
@@ -205,5 +204,74 @@ public class QuizControllerTests
         Assert.AreEqual(mcsaCard.Option4, mcsaCardMock.Option4);
         Assert.AreEqual(mcsaCard.Option5, mcsaCardMock.Option5);
         Assert.AreEqual(mcsaCard.CorrectOptionNumber, mcsaCardMock.CorrectOptionNumber);
+    }
+
+    [TestMethod]
+    public async Task GetAllQuestionsTest_Fail()
+    {
+        //Arrange
+        var controller = new QuizController(mediatorMock.Object);
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<GetAllQuestionsQuery>(),
+            CancellationToken.None)
+            ).ReturnsAsync(new GetAllQuestionsQueryResponse
+            {
+                Questions = null,
+                Success = false,
+                ErrorMessage = null,
+            });
+
+        //Act
+        var response = await controller.GetAllQuestions();
+        var objectResult = response.Result as ObjectResult;
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task GetQuestionWithoutAnswerTest_WithQuestion_Successful()
+    {
+        //Arrange
+        var questionCardMock = new QuestionDto
+        {
+            QuestionType = "QuestionCard",
+            QuestionText = "Test",
+        };
+
+        var request = new GetQuestionCommand
+        {
+            PlayerName = "John Doe",
+        };
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<GetQuestionCommand>(), 
+            CancellationToken.None))
+            .ReturnsAsync(new GetQuestionCommandResponse
+            {
+                Question = new QuestionDto
+                {
+                    QuestionType = "QuestionCard",
+                    QuestionText = "Test",
+                },
+                AnswerMessage = null,
+                Success = true,
+                ErrorMessage = null,
+            });
+
+        //Act
+        var response = await controller.GetQuestionWithoutAnswer(request.PlayerName); // Response.Headers.Append fails - 'Response' is null
+        var ObjectResult = response.Result as ObjectResult;
+        var questionCard = ObjectResult.Value as QuestionCardModel;
+
+        //Assert
+        Assert.IsNotNull(ObjectResult);
+        Assert.AreEqual(200, ObjectResult.StatusCode);
+        Assert.IsTrue(ObjectResult.Value is QuestionCardModel);
+        Assert.AreEqual(questionCardMock.QuestionType, questionCard.QuestionType);
+        Assert.AreEqual(questionCardMock.QuestionText, questionCard.QuestionText);
     }
 }
