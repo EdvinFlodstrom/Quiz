@@ -1128,3 +1128,21 @@ I feel like I'm just rigging the results and checking the rigged results. Someth
 broken somewhere as well, since letting the controller handle the actual requests appears to
 fail every time. And this is despite it handling Postman/JavaScript-fetch-requests just fine.
 I am, indeed, confused.
+
+2024-03-22
+-----------
+I've been working on unit tests for a bit now, and I've definetely come to understand them 
+a lot better, I think. So the issues I ran into above were just me being confused. Who
+could've guessed? Anyhow, the point in mocking the tests is to let the controller handle
+the requests, but not actually send them. This way, the controller's methods can be tested
+in an ***ISOLATED ENVIRONMENT***, which is the whole point of unit tests. Took me a while to
+understand that, apparently. I've now implemented tests for the 'GetQuestion' and 'CheckAnswer'
+methods, which went well, I think? That is, if I'm doing it right. To be honest, the 
+error handling in my 'QuizController.cs' class is quite frankly abhorrent. I'm returning
+either 200 or 500. No 404, no 400, nothing like that. And there's no way I'm doing it now
+because I don't feel like working on this project until the day I set foot in my grave.
+So where was I? The tests work, but because of the poor error handling in the controller,
+they are boring and repetitive. But hey, they work. The reason I'm writing this
+and writing unit tests during work hours is because I've yet to receive a new task to work
+on, so I figured I might as well use my time for reforging what I've learned so far by 
+implementing the concepts here. So yeah, unit tests, woo!
