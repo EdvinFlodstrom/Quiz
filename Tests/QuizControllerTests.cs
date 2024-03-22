@@ -164,7 +164,7 @@ public class QuizControllerTests
         };
 
         mediatorMock.Setup(m => m.Send(
-            It.IsAny<GetAllQuestionsQuery>(), 
+            It.IsAny<GetAllQuestionsQuery>(),
             CancellationToken.None))
             .ReturnsAsync(new GetAllQuestionsQueryResponse
             {
@@ -254,7 +254,7 @@ public class QuizControllerTests
         };
 
         mediatorMock.Setup(m => m.Send(
-            It.IsAny<GetQuestionCommand>(), 
+            It.IsAny<GetQuestionCommand>(),
             CancellationToken.None))
             .ReturnsAsync(new GetQuestionCommandResponse
             {
@@ -354,5 +354,228 @@ public class QuizControllerTests
         Assert.IsNotNull(objectResult);
         Assert.AreEqual(500, objectResult.StatusCode);
         Assert.AreEqual("Internal server error", questionMessage);
+    }
+
+    [TestMethod]
+    public async Task CheckQuestionAnswerTest_Correct_Successful()
+    {
+        //Arrange
+        var request = new CheckAnswerCommand
+        {
+            PlayerName = "John Doe",
+            PlayerAnswer = "Test",
+        };
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<CheckAnswerCommand>(),
+            CancellationToken.None))
+            .ReturnsAsync(new CheckAnswerCommandReponse
+            {
+                AnswerMessage = "Correct",
+                Success = true,
+                ErrorMessage = null,
+            });
+
+        //Act
+        var response = await controller.CheckQuestionAnswer(request.PlayerName, request.PlayerAnswer);
+        var objectResult = response.Result as ObjectResult;
+        var answerWasCorrectOrIncorrectString = objectResult.Value as string;
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(200, objectResult.StatusCode);
+        Assert.AreEqual("Correct", answerWasCorrectOrIncorrectString);
+    }
+
+    [TestMethod]
+    public async Task CheckQuestionAnswerTest_Incorrect_Successful()
+    {
+        //Arrange
+        var request = new CheckAnswerCommand
+        {
+            PlayerName = "John Doe",
+            PlayerAnswer = "Test",
+        };
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<CheckAnswerCommand>(),
+            CancellationToken.None))
+            .ReturnsAsync(new CheckAnswerCommandReponse
+            {
+                AnswerMessage = "Incorrect",
+                Success = true,
+                ErrorMessage = null,
+            });
+
+        //Act
+        var response = await controller.CheckQuestionAnswer(request.PlayerName, request.PlayerAnswer);
+        var objectResult = response.Result as ObjectResult;
+        var answerWasCorrectOrIncorrectString = objectResult.Value as string;
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(200, objectResult.StatusCode);
+        Assert.AreEqual("Incorrect", answerWasCorrectOrIncorrectString);
+    }
+
+    [TestMethod]
+    public async Task CheckQuestionAnswerTest_NoName_Fail()
+    {
+        //Arrange
+        var request = new CheckAnswerCommand
+        {
+            PlayerName = "John Doe",
+            PlayerAnswer = "Test",
+        };
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<CheckAnswerCommand>(),
+            CancellationToken.None))
+            .ReturnsAsync(new CheckAnswerCommandReponse
+            {
+                AnswerMessage = null,
+                Success = false,
+                ErrorMessage = "No name was entered.",
+            });
+
+        //Act
+        var response = await controller.CheckQuestionAnswer(request.PlayerName, request.PlayerAnswer);
+        var objectResult = response.Result as ObjectResult;
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode);
+        Assert.AreEqual("No name was entered.", objectResult.Value);
+    }
+
+    [TestMethod]
+    public async Task CheckQuestionAnswerTest_NoAnswer_Fail()
+    {
+        //Arrange
+        var request = new CheckAnswerCommand
+        {
+            PlayerName = "John Doe",
+            PlayerAnswer = "Test",
+        };
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<CheckAnswerCommand>(),
+            CancellationToken.None))
+            .ReturnsAsync(new CheckAnswerCommandReponse
+            {
+                AnswerMessage = null,
+                Success = false,
+                ErrorMessage = "No answer was entered.",
+            });
+
+        //Act
+        var response = await controller.CheckQuestionAnswer(request.PlayerName, request.PlayerAnswer);
+        var objectResult = response.Result as ObjectResult;
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode);
+        Assert.AreEqual("No answer was entered.", objectResult.Value);
+    }
+
+    [TestMethod]
+    public async Task GetInitialInstructionsTest_Successful()
+    {
+        //Arrange
+        var query = new GetInitialInstructionsQuery();
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<GetInitialInstructionsQuery>(),
+            CancellationToken.None))
+            .ReturnsAsync(new GetInitialInstructionsQueryResponse
+            {
+                Instructions = new List<string> { "Test" },
+                Success = true,
+                ErrorMessage = null,
+            });
+
+        //Act
+        var response = await controller.GetInitialInstructions();
+        var objectResult = response.Result as ObjectResult;
+        var listOfInstructions = objectResult.Value as List<string>;
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(200, objectResult.StatusCode);
+        Assert.AreEqual("Test", listOfInstructions[0]);
+    }
+
+    [TestMethod]
+    public async Task GetInitialInstructionsTest_Fail()
+    {
+        //Arrange
+        var query = new GetInitialInstructionsQuery();
+
+        var controller = new QuizController(mediatorMock.Object);
+
+        mediatorMock.Setup(m => m.Send(
+            It.IsAny<GetInitialInstructionsQuery>(),
+            CancellationToken.None))
+            .ReturnsAsync(new GetInitialInstructionsQueryResponse
+            {
+                Instructions = null,
+                Success = false,
+                ErrorMessage = "Internal server error",
+            });
+
+        //Act
+        var response = await controller.GetInitialInstructions();
+        var objectResult = response.Result as ObjectResult;
+        var errorMessage = objectResult.Value as string;
+
+        //Assert
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode);
+        Assert.AreEqual("Internal server error", errorMessage);
+    }
+
+    [TestMethod]
+    public async Task HandleUnknownRoute_Returns_NotFound()
+    {
+        //Arrange
+        var controller = new QuizController(mediatorMock.Object);
+
+        //Act
+        var response = controller.HandleUnknownRoute();
+        var objectResult = response.Result as ObjectResult;
+
+        //Assert
+        Assert.IsNotNull(response);
+        Assert.AreEqual(404, objectResult.StatusCode);
     }
 }
